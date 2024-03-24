@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+service File {
+  rpc download(FileDownloadReq) returns (FileDownloadRsp) {}
+  rpc listAll(ListReq) returns (stream FileListRsp) {}
+  rpc listChunksFromFile(FileListReq) returns (stream FileListRsp) {}
+  rpc upload(FileUploadReq) returns (UploadRsp) {}
+}
+message FileDownloadRsp {
+  bytes buffer = 1;
+}
+
+message FileDownloadReq {
+  string filename = 1;
+  string chunkname = 2;
+}
+message ListReq {
+}
+message FileListReq {
+  string filename = 1;
+}
+message FileListRsp {
+  string filename = 1;
+  int64 size = 2;
+}
+message FileUploadReq {
+  string filename = 1;
+  string chunkname = 2;
+  bytes buffer = 3;
+}
+message UploadRsp {
+}
