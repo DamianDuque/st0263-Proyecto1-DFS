@@ -9,16 +9,8 @@ import sys
 
 # Get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Get the parent directory of the current directory (i.e., the root directory of your project)
 parent_dir = os.path.dirname(current_dir)
-print(parent_dir)
-grand_dir = os.path.dirname(parent_dir)
-print(grand_dir)
-
-# Add the parent directory to the Python path
-sys.path.append(grand_dir)
-print(grand_dir)
+sys.path.append(parent_dir)
 
 from protos import namenode_pb2_grpc as servicer
 from protos.namenode_pb2 import DatanodeList

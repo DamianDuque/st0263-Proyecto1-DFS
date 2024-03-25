@@ -6,15 +6,9 @@ import time
 import grpc
 import sys
 
-# Get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
-
-# Get the parent directory of the current directory (i.e., the root directory of your project)
 parent_dir = os.path.dirname(current_dir)
-
-# Add the parent directory to the Python path
 sys.path.append(parent_dir)
-print(parent_dir)
 
 
 # Import statements for protobuf files
