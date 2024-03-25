@@ -29,7 +29,7 @@ Original Repo: https://github.com/r-sitko/grpc-file-transfer/blob/master/server/
         ```
     - download *test_file.txt* file from server to *resources/client* directory:
         ```bash
-        python -m client.main -i localhost -p 8000 -c cert/server.crt -dir client/resources  download  -f helloWorld.txt -p part001.txt
+        python -m client.main -i localhost -p 8000 -c cert/server.crt -dir client/resources  open  -f file1.txt
         ```
     - upload file *test_file.txt* (by default in a const dir)
         ```bash

@@ -12,24 +12,47 @@ current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
-from protos import namenode_pb2_grpc as servicer
-from protos.namenode_pb2 import DatanodeList
+from protos import file_pb2_grpc as servicer
+from protos.file_pb2 import DatanodeList
 
 logger = logging.getLogger(__name__)
 
 class FileServicer(servicer.NameNodeServiceServicer):
-  def __init__(self,availableDatanode,indexTable):
-    self.__availableDatanode=availableDatanode
+  def __init__(self,dataNodesList,indexTable):
+    self.__dataNodesList=dataNodesList
     self.__indexTable=indexTable
+    self.__globalCount=0
 
   def create(self, request, context):
-   """  filename= request.filename
+    filename= request.filename
     chunks_number= request.chunks_number
-    try:
 
-    except:
-      print('An exception occurred') """
-   return
+    availableDatanodes = []
+    for key, value in self.__dataNodesList.items():
+      if value == True:
+        availableDatanodes.append(key)
+    try:
+      if len(availableDatanodes)==0:
+        yield DatanodeList()
+
+      for i in range(0, chunks_number):
+        index= self.__globalCount%len(availableDatanodes)
+        print(index)
+        location=availableDatanodes[index]
+        self.__globalCount+=1
+        yield DatanodeList(localization=location)
+        
+    
+    except Exception as e:
+        logger.error("Error while sending locations: {}".format(e))
+        # Manejar cualquier otro error que pueda ocurrir durante la lectura del archivo
+        context.set_code(grpc.StatusCode.INTERNAL)
+        context.set_details("Error while sending locations")
+        yield DatanodeList()
+        return
+
+    
+   
   def open(self, request, context):
     try:
         
@@ -40,7 +63,8 @@ class FileServicer(servicer.NameNodeServiceServicer):
         else:
           for chunk in list:
             localization=chunk.location
-            yield DatanodeList(localization=localization)
+            name= chunk.name
+            yield DatanodeList(localization=localization,chunkname=name)
 
     except KeyError as e:
        # Archivo no existe, no encuentra la llave
@@ -63,9 +87,9 @@ class NameNodeServer():
     self.__port = port
     self.__max_workers = max_workers
     self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
-    self.__indexTable= {"file1.txt":[Chunk("chunk1","localhost:8000"),Chunk("chunk2","localhost:8000")]}
-    self.__availableDatanodes={"localhost:8000":true}
-    servicer.add_NameNodeServiceServicer_to_server(FileServicer(self.__availableDatanodes,self.__indexTable),self.__server)
+    self.__indexTable= {"file1.txt":[Chunk("chunk1","localhost:3301"),Chunk("chunk2","localhost:3300")]}
+    self.__datanodesList={"localhost:8000":True,"localhost:5050":False,"localhost:1010":True}
+    servicer.add_NameNodeServiceServicer_to_server(FileServicer(self.__datanodesList,self.__indexTable),self.__server)
     self.__server.add_insecure_port(str(self.__ip_address) + ":" + str(self.__port))
     logger.info("created namenode instance " + str(self))
 

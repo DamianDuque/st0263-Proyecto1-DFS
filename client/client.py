@@ -5,44 +5,56 @@ from . import splitter
 
 import grpc
 
-from protos.file_pb2 import FileDownloadReq,ListReq,FileUploadReq
-from protos.file_pb2_grpc import FileStub
+from protos.file_pb2 import FileDownloadReq,ListReq,FileUploadReq,FileOpenReq
+from protos.file_pb2_grpc import FileStub,NameNodeServiceStub
 
 logger = logging.getLogger(__name__)
 
-class FileClient:
+class Client:
+  def _create_name_node_client(self,host: int,port:int):
+         socket="{}:{}".format(host,port)
+         channel: grpc.Channel = grpc.insecure_channel(socket)
+         return  NameNodeServiceStub(channel)
+    
+  def _create_datanode_client(self,socket:str):
+        channel: grpc.Channel = grpc.insecure_channel(socket)
+        return  FileStub(channel)
   def __init__(self, ip_address, port, cert_file,root_dir):
     self.__ip_address = ip_address
     self.__port = port
     self.__cert_file = cert_file
     self.__files_directory=root_dir
     self._PIECE_SIZE_IN_BYTES = 1024 * 1024 # 1MB
-
-    #with open(self.__cert_file, "rb") as fh:
-      # trusted_cert = fh.read()
-      
-    # credentials = grpc.ssl_channel_credentials(root_certificates=trusted_cert)
-    # channel = grpc.secure_channel("{}:{}"
-    #   .format(self.__ip_address, self.__port), credentials)
-    # self.stub = FileStub(channel)
-    # Crear un canal gRPC inseguro
-    channel = grpc.insecure_channel("{}:{}".format(self.__ip_address, self.__port))
-    self.stub = FileStub(channel)
-
     logger.info("created instance " + str(self))
 
   def list(self):
     logger.info("downloading files list from server")
     response_stream = self.stub.listAll(ListReq())
     self.__list_files(response_stream)
+  def open(self,file_name):
+     namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
+     logger.info("calling namenodeserver...")
+     req= FileOpenReq(filename=file_name)
+     try:
+      response_stream = namenodeStub.open(req)
+      for response in response_stream:
+         localization="{}".format(response.localization)
+         chunkname="{}".format(response.chunkname)
+         self.read(localization,file_name=file_name,chunk_name=chunkname)
+         
+     except grpc.RpcError as e:
+        logger.error("gRPC error: {}".format(e.details()))
+    
+    
 
-  def download(self, file_name,chunk_name):
-    logger.info("downloading chunk {chunk} from file:{file_name}".format(file_name=file_name,chunk=chunk_name))
+  def read(self,socket,file_name,chunk_name):
+    datanodeStub= self._create_datanode_client(socket=socket)
+    logger.info("downloading chunk {chunk} from file:{file_name} in socket: {socket}".format(file_name=file_name,chunk=chunk_name,socket=socket))
     req= FileDownloadReq(filename=file_name,chunkname=chunk_name)
    
     try:
-      #Remote Call procedure download
-      response_bytes = self.stub.download(req)
+      #Remote Call procedure to datanode download
+      response_bytes = datanodeStub.download(req)
       self.__saving_chunk(response_bytes, chunk_name, file_name)
     except grpc.RpcError as e:
         logger.error("gRPC error: {}".format(e.details()))

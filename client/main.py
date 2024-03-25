@@ -1,6 +1,6 @@
 import argparse
 import logging
-from client.client import FileClient
+from client.client import Client
 import os
 
 def main():
@@ -20,10 +20,11 @@ def main():
   subparsers = parser.add_subparsers(dest="action", help="client possible actions")
   subparsers.required = True
 
-  download_parser = subparsers.add_parser("download", help="download file from server")
-  download_parser.add_argument("-f", "--filename", required=True, type=str, help="file name to download")
-  upload_parser = subparsers.add_parser("upload",help="upload file to server")
-  upload_parser.add_argument("-f", "--filename", required=True, type=str, help="file name to upload")
+  download_parser = subparsers.add_parser("open", help="open file from server")
+  download_parser.add_argument("-f", "--filename", required=True, type=str, help="file name to open")
+  upload_parser = subparsers.add_parser("create",help="create and upload file to server")
+  upload_parser.add_argument("-f", "--filename", required=True, type=str, help="file name to create")
+  list_parser = subparsers.add_parser("ls",help="list directories and files")
 
   subparsers.add_parser("list", help="list files on server")
 
@@ -36,14 +37,14 @@ def main():
       cert_file=args.cert_file,
       action=args.action))
 
-  client = FileClient(args.ip_adress, args.port, args.cert_file,args.root_dir)
+  client = Client(args.ip_adress, args.port, args.cert_file,args.root_dir)
 
   action = args.action
-  if action == "download":
-    client.download(args.filename, args.partition)
-  elif action == "list":
-    client.list()
-  elif action== "upload":
+  if action == "open":
+    client.open(args.filename)
+  elif action== "create":
+    client.upload(args.filename)
+  elif action== "ls":
     client.upload(args.filename)
   else:
     logger.error("no such action " + action)

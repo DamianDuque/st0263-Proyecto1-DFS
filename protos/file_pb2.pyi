@@ -49,3 +49,29 @@ class FileUploadReq(_message.Message):
 class UploadRsp(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
+
+class FileOpenReq(_message.Message):
+    __slots__ = ("filename",)
+    FILENAME_FIELD_NUMBER: _ClassVar[int]
+    filename: str
+    def __init__(self, filename: _Optional[str] = ...) -> None: ...
+
+class FileCreateReq(_message.Message):
+    __slots__ = ("filename", "chunks_number")
+    FILENAME_FIELD_NUMBER: _ClassVar[int]
+    CHUNKS_NUMBER_FIELD_NUMBER: _ClassVar[int]
+    filename: str
+    chunks_number: int
+    def __init__(self, filename: _Optional[str] = ..., chunks_number: _Optional[int] = ...) -> None: ...
+
+class DatanodeList(_message.Message):
+    __slots__ = ("localization", "chunkname")
+    LOCALIZATION_FIELD_NUMBER: _ClassVar[int]
+    CHUNKNAME_FIELD_NUMBER: _ClassVar[int]
+    localization: str
+    chunkname: str
+    def __init__(self, localization: _Optional[str] = ..., chunkname: _Optional[str] = ...) -> None: ...
+
+class Empty(_message.Message):
+    __slots__ = ()
+    def __init__(self) -> None: ...
