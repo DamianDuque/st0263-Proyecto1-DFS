@@ -4,7 +4,7 @@ import logging
 from dotenv import load_dotenv
 
 
-load_dotenv("server/.env")
+load_dotenv("datanode/.env")
 #Cargando variables de entorno y retorndolas
 def initialize()->tuple[int, int, int, str, str, str]:
     address = str(os.getenv("SERVER_HOST"))

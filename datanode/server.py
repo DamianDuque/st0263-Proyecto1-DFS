@@ -4,9 +4,23 @@ import os
 import time
 
 import grpc
+import sys
 
+# Get the current directory of the script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Get the parent directory of the current directory (i.e., the root directory of your project)
+parent_dir = os.path.dirname(current_dir)
+
+# Add the parent directory to the Python path
+sys.path.append(parent_dir)
+print(parent_dir)
+
+
+# Import statements for protobuf files
 from protos.file_pb2 import FileDownloadRsp, UploadRsp, FileListRsp
 from protos import file_pb2_grpc as file_pb2_grpc
+
 
 logger = logging.getLogger(__name__)
 
@@ -115,11 +129,6 @@ class FileServer():
     self.__files_directory = files_directory
     self.__private_key_file = private_key_file
     self.__cert_file = cert_file
-    # with open(self.__private_key_file, "rb") as fh:
-    #   private_key = fh.read()
-    # with open(self.__cert_file, "rb") as fh:
-    #   certificate_chain = fh.read()
-
     self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
     file_pb2_grpc.add_FileServicer_to_server(FileServicer(self.__files_directory), self.__server)
     self.__server.add_insecure_port(str(self.__ip_address) + ":" + str(self.__port))
