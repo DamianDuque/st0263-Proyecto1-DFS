@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nfile.proto\"\x1d\n\x0bReadFileRsp\x12\x0e\n\x06\x62uffer\x18\x01 \x01(\x0c\"2\n\x0bReadFileReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x11\n\tchunkname\x18\x02 \x01(\t\"\t\n\x07ListReq\"\x1f\n\x0b\x46ileListReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"-\n\x0b\x46ileListRsp\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x0c\n\x04size\x18\x02 \x01(\x03\"C\n\x0cWriteFileReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x11\n\tchunkname\x18\x02 \x01(\t\x12\x0e\n\x06\x62uffer\x18\x03 \x01(\x0c\"\n\n\x08WriteRsp\"\x1f\n\x0b\x46ileOpenReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"8\n\rFileCreateReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x15\n\rchunks_number\x18\x02 \x01(\x03\"7\n\x0c\x44\x61tanodeList\x12\x14\n\x0clocalization\x18\x01 \x01(\t\x12\x11\n\tchunkname\x18\x02 \x01(\t\"\x07\n\x05\x45mpty2Q\n\x04\x46ile\x12$\n\x04read\x12\x0c.ReadFileReq\x1a\x0c.ReadFileRsp\"\x00\x12#\n\x05write\x12\r.WriteFileReq\x1a\t.WriteRsp\"\x00\x32\x81\x01\n\x0fNameNodeService\x12\'\n\x04open\x12\x0c.FileOpenReq\x1a\r.DatanodeList\"\x00\x30\x01\x12+\n\x06\x63reate\x12\x0e.FileCreateReq\x1a\r.DatanodeList\"\x00\x30\x01\x12\x18\n\x04ping\x12\x06.Empty\x1a\x06.Empty\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nfile.proto\"\x1d\n\x0bReadFileRsp\x12\x0e\n\x06\x62uffer\x18\x01 \x01(\x0c\"2\n\x0bReadFileReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x11\n\tchunkname\x18\x02 \x01(\t\"C\n\x0cWriteFileReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x11\n\tchunkname\x18\x02 \x01(\t\x12\x0e\n\x06\x62uffer\x18\x03 \x01(\x0c\"\n\n\x08WriteRsp\"\x1f\n\x0b\x46ileOpenReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"8\n\rFileCreateReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x15\n\rchunks_number\x18\x02 \x01(\x03\"7\n\x0c\x44\x61tanodeList\x12\x14\n\x0clocalization\x18\x01 \x01(\t\x12\x11\n\tchunkname\x18\x02 \x01(\t\"\x07\n\x05\x45mpty\"\x1e\n\x0c\x44\x61tanodeInfo\x12\x0e\n\x06socket\x18\x01 \x01(\t2Q\n\x04\x46ile\x12$\n\x04read\x12\x0c.ReadFileReq\x1a\x0c.ReadFileRsp\"\x00\x12#\n\x05write\x12\r.WriteFileReq\x1a\t.WriteRsp\"\x00\x32\x88\x01\n\x0fNameNodeService\x12\'\n\x04open\x12\x0c.FileOpenReq\x1a\r.DatanodeList\"\x00\x30\x01\x12+\n\x06\x63reate\x12\x0e.FileCreateReq\x1a\r.DatanodeList\"\x00\x30\x01\x12\x1f\n\x04ping\x12\r.DatanodeInfo\x1a\x06.Empty\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -25,26 +25,22 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_READFILERSP']._serialized_end=43
   _globals['_READFILEREQ']._serialized_start=45
   _globals['_READFILEREQ']._serialized_end=95
-  _globals['_LISTREQ']._serialized_start=97
-  _globals['_LISTREQ']._serialized_end=106
-  _globals['_FILELISTREQ']._serialized_start=108
-  _globals['_FILELISTREQ']._serialized_end=139
-  _globals['_FILELISTRSP']._serialized_start=141
-  _globals['_FILELISTRSP']._serialized_end=186
-  _globals['_WRITEFILEREQ']._serialized_start=188
-  _globals['_WRITEFILEREQ']._serialized_end=255
-  _globals['_WRITERSP']._serialized_start=257
-  _globals['_WRITERSP']._serialized_end=267
-  _globals['_FILEOPENREQ']._serialized_start=269
-  _globals['_FILEOPENREQ']._serialized_end=300
-  _globals['_FILECREATEREQ']._serialized_start=302
-  _globals['_FILECREATEREQ']._serialized_end=358
-  _globals['_DATANODELIST']._serialized_start=360
-  _globals['_DATANODELIST']._serialized_end=415
-  _globals['_EMPTY']._serialized_start=417
-  _globals['_EMPTY']._serialized_end=424
-  _globals['_FILE']._serialized_start=426
-  _globals['_FILE']._serialized_end=507
-  _globals['_NAMENODESERVICE']._serialized_start=510
-  _globals['_NAMENODESERVICE']._serialized_end=639
+  _globals['_WRITEFILEREQ']._serialized_start=97
+  _globals['_WRITEFILEREQ']._serialized_end=164
+  _globals['_WRITERSP']._serialized_start=166
+  _globals['_WRITERSP']._serialized_end=176
+  _globals['_FILEOPENREQ']._serialized_start=178
+  _globals['_FILEOPENREQ']._serialized_end=209
+  _globals['_FILECREATEREQ']._serialized_start=211
+  _globals['_FILECREATEREQ']._serialized_end=267
+  _globals['_DATANODELIST']._serialized_start=269
+  _globals['_DATANODELIST']._serialized_end=324
+  _globals['_EMPTY']._serialized_start=326
+  _globals['_EMPTY']._serialized_end=333
+  _globals['_DATANODEINFO']._serialized_start=335
+  _globals['_DATANODEINFO']._serialized_end=365
+  _globals['_FILE']._serialized_start=367
+  _globals['_FILE']._serialized_end=448
+  _globals['_NAMENODESERVICE']._serialized_start=451
+  _globals['_NAMENODESERVICE']._serialized_end=587
 # @@protoc_insertion_point(module_scope)

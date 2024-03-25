@@ -1,6 +1,7 @@
 import os
+import logging
 
-def hadoop_style_split(filename, chunk_size):
+def hadoop_style_split(filename, in_path, out_path, chunk_size):
     """
     Divide un archivo grande en chunks más pequeños, almacenándolos
     en un directorio con el nombre del archivo original.
@@ -8,17 +9,21 @@ def hadoop_style_split(filename, chunk_size):
     :param filename: El nombre del archivo a dividir.
     :param chunk_size: El tamaño de cada chunk en bytes.
     """
+
     
-    directorio_origen = f"client/resources/complete_files/{filename}"
-    directorio_destino = f"client/resources/{filename}"
     
     # Crea el directorio si no existe
-    if not os.path.exists(directorio_destino):
-        os.makedirs(directorio_destino)
+    
 
+    logger = logging.getLogger(__name__)    
+    directorio_origen = f"{in_path}/{filename}"
+    directorio_destino = f"{out_path}/{filename}"
     chunk_num = 1
     with open(directorio_origen, 'rb') as archivo:
+        if not os.path.exists(directorio_destino):
+            os.makedirs(directorio_destino)
         chunk = archivo.read(chunk_size)
+        
         while chunk:
             nombre_parte = f"{directorio_destino}/part{chunk_num:04d}"
             with open(nombre_parte+".txt", 'wb') as archivo_parte:
@@ -29,6 +34,7 @@ def hadoop_style_split(filename, chunk_size):
             
             chunk_num += 1
             chunk = archivo.read(chunk_size)
+
 
 if __name__ == "__main__":
     filename = "Infografia.pdf"  # Nombre del archivo

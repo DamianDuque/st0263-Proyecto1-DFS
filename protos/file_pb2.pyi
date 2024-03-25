@@ -18,24 +18,6 @@ class ReadFileReq(_message.Message):
     chunkname: str
     def __init__(self, filename: _Optional[str] = ..., chunkname: _Optional[str] = ...) -> None: ...
 
-class ListReq(_message.Message):
-    __slots__ = ()
-    def __init__(self) -> None: ...
-
-class FileListReq(_message.Message):
-    __slots__ = ("filename",)
-    FILENAME_FIELD_NUMBER: _ClassVar[int]
-    filename: str
-    def __init__(self, filename: _Optional[str] = ...) -> None: ...
-
-class FileListRsp(_message.Message):
-    __slots__ = ("filename", "size")
-    FILENAME_FIELD_NUMBER: _ClassVar[int]
-    SIZE_FIELD_NUMBER: _ClassVar[int]
-    filename: str
-    size: int
-    def __init__(self, filename: _Optional[str] = ..., size: _Optional[int] = ...) -> None: ...
-
 class WriteFileReq(_message.Message):
     __slots__ = ("filename", "chunkname", "buffer")
     FILENAME_FIELD_NUMBER: _ClassVar[int]
@@ -75,3 +57,9 @@ class DatanodeList(_message.Message):
 class Empty(_message.Message):
     __slots__ = ()
     def __init__(self) -> None: ...
+
+class DatanodeInfo(_message.Message):
+    __slots__ = ("socket",)
+    SOCKET_FIELD_NUMBER: _ClassVar[int]
+    socket: str
+    def __init__(self, socket: _Optional[str] = ...) -> None: ...

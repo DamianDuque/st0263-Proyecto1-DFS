@@ -13,7 +13,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 from protos import file_pb2_grpc as servicer
-from protos.file_pb2 import DatanodeList
+from protos.file_pb2 import DatanodeList,Empty
 
 logger = logging.getLogger(__name__)
 
@@ -51,8 +51,6 @@ class FileServicer(servicer.NameNodeServiceServicer):
         yield DatanodeList()
         return
 
-    
-   
   def open(self, request, context):
     try:
         
@@ -80,6 +78,12 @@ class FileServicer(servicer.NameNodeServiceServicer):
         context.set_details("Error while sending locations")
         yield DatanodeList()
         return
+  
+  def ping(self, request, context):
+    datanodeSocket= request.socket
+    self.__dataNodesList[datanodeSocket]=True
+    logger.info("ping done with {datanodeInfo}".format(datanodeInfo=datanodeSocket))
+    return Empty()
 class NameNodeServer():
   _ONE_DAY_IN_SECONDS = 60 * 60 * 24
   def __init__(self, ip_address, port, max_workers):
@@ -87,8 +91,8 @@ class NameNodeServer():
     self.__port = port
     self.__max_workers = max_workers
     self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
-    self.__indexTable= {"file1.txt":[Chunk("chunk1","localhost:3301"),Chunk("chunk2","localhost:3300")]}
-    self.__datanodesList={"localhost:3301":True,"localhost:5050":False,"localhost:3300":True}
+    self.__indexTable= {"file1.txt":[Chunk("part0002.txt","localhost:3300")]}
+    self.__datanodesList={"localhost:3301":True,"localhost:5050":False}
     servicer.add_NameNodeServiceServicer_to_server(FileServicer(self.__datanodesList,self.__indexTable),self.__server)
     self.__server.add_insecure_port(str(self.__ip_address) + ":" + str(self.__port))
     logger.info("created namenode instance " + str(self))

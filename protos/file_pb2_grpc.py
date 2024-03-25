@@ -120,7 +120,7 @@ class NameNodeServiceStub(object):
                 )
         self.ping = channel.unary_unary(
                 '/NameNodeService/ping',
-                request_serializer=file__pb2.Empty.SerializeToString,
+                request_serializer=file__pb2.DatanodeInfo.SerializeToString,
                 response_deserializer=file__pb2.Empty.FromString,
                 )
 
@@ -161,7 +161,7 @@ def add_NameNodeServiceServicer_to_server(servicer, server):
             ),
             'ping': grpc.unary_unary_rpc_method_handler(
                     servicer.ping,
-                    request_deserializer=file__pb2.Empty.FromString,
+                    request_deserializer=file__pb2.DatanodeInfo.FromString,
                     response_serializer=file__pb2.Empty.SerializeToString,
             ),
     }
@@ -220,7 +220,7 @@ class NameNodeService(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/NameNodeService/ping',
-            file__pb2.Empty.SerializeToString,
+            file__pb2.DatanodeInfo.SerializeToString,
             file__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

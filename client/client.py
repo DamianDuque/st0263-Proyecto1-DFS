@@ -19,11 +19,11 @@ class Client:
   def _create_datanode_client(self,socket:str):
         channel: grpc.Channel = grpc.insecure_channel(socket)
         return  FileStub(channel)
-  def __init__(self, ip_address, port, cert_file,root_dir):
+  def __init__(self, ip_address, port,root_dir,in_dir):
     self.__ip_address = ip_address
     self.__port = port
-    self.__cert_file = cert_file
     self.__files_directory=root_dir
+    self.__in_dir=in_dir
     self._PIECE_SIZE_IN_BYTES = 1024 * 1024 # 1MB
     logger.info("created instance " + str(self))
 
@@ -38,19 +38,18 @@ class Client:
       for response in response_stream:
          localization="{}".format(response.localization)
          chunkname="{}".format(response.chunkname)
-         self.read(localization,file_name=file_name,chunk_name=chunkname)
+         self.read(socket=localization,file_name=file_name,chunk_name=chunkname)
          
      except grpc.RpcError as e:
         logger.error("gRPC error: {}".format(e.details()))
+        return
     
-    
-
   def read(self,socket,file_name,chunk_name):
-    datanodeStub= self._create_datanode_client(socket=socket)
-    logger.info("downloading chunk {chunk} from file:{file_name} in socket: {socket}".format(file_name=file_name,chunk=chunk_name,socket=socket))
-    req= ReadFileReq(filename=file_name,chunkname=chunk_name)
-   
+    
     try:
+      datanodeStub= self._create_datanode_client(socket=socket)
+      logger.info("downloading chunk {chunk} from file:{file_name} in socket: {socket}".format(file_name=file_name,chunk=chunk_name,socket=socket))
+      req= ReadFileReq(filename=file_name,chunkname=chunk_name)
       #Remote Call procedure to datanode download
       response_bytes = datanodeStub.read(req)
       self.__saving_chunk(response_bytes, chunk_name, file_name)
@@ -72,20 +71,20 @@ class Client:
       
   
   def create(self,file_name):
-    namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
-    splitter.hadoop_style_split(file_name, 1024 * 1024)
-    directory=os.path.join(self.__files_directory,file_name)
-    print(os.listdir(directory))
-    chunksList= os.listdir(directory)
-    chunksNumber=len(chunksList)
+    
     try:
+      namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
+      splitter.hadoop_style_split(filename=file_name,in_path=self.__in_dir,out_path=self.__files_directory, chunk_size= self._PIECE_SIZE_IN_BYTES)
+      directory=os.path.join(self.__files_directory,file_name)
+      chunksList= os.listdir(directory)
+      chunksNumber=len(chunksList)
       req= FileCreateReq(filename=file_name,chunks_number=chunksNumber)
       response_stream = namenodeStub.create(req)
       chunkIndex=0
       for response in response_stream:
          localization="{}".format(response.localization)
          chunkName=chunksList[chunkIndex]
-         self.__uploadToServer(socket=localization,filename=file_name,chunk_name=chunkName)
+         self.__uploadToNameNode(socket=localization,filename=file_name,chunk_name=chunkName)
          chunkIndex+=1
     except grpc.RpcError as e:
       logger.error("gRPC error: {}".format(e.details()))    
@@ -95,9 +94,8 @@ class Client:
 
 
 
-  def __uploadToServer(self,socket,filename,chunk_name):
+  def __uploadToNameNode(self,socket,filename,chunk_name):
     filePath=os.path.join(self.__files_directory,filename,chunk_name)
-
     try:
       with open(filePath, "rb") as fh:
         piece = fh.read(self._PIECE_SIZE_IN_BYTES)
@@ -118,8 +116,8 @@ class Client:
       print("file name: {}, size: {} bytes".format(response.filename, response.size))
 
   def __str__(self):
-    return "ip:{ip_address}, port:{port}, cert_file:{cert_file}"\
+    return "ip:{ip_address}, port:{port}"\
       .format(
         ip_address=self.__ip_address,
-        port=self.__port,
-        cert_file=self.__cert_file)
+        port=self.__port
+        )

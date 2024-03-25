@@ -23,17 +23,14 @@ Original Repo: https://github.com/r-sitko/grpc-file-transfer/blob/master/server/
     python server/main.py 
     ```
 1. Launch gRPC file transfer client in second console:
-    - list available files to download from server
+  
+    - open *test_file.txt* file from server to *resources/client* directory:
         ```bash
-        python -m client.main -i localhost -p 8000 -c cert/server.crt -dir client/resources list
+        python -m client.main-out client/resources -in client/resources/complete_files create open  -f file1.txt        
         ```
-    - download *test_file.txt* file from server to *resources/client* directory:
+    - create file *test_file.txt* (by default in a const dir)
         ```bash
-        python -m client.main -i localhost -p 8000 -c cert/server.crt -dir client/resources  open  -f file1.txt
-        ```
-    - upload file *test_file.txt* (by default in a const dir)
-        ```bash
-        python -m client.main -i localhost -p 8000 -c cert/server.crt -dir client/resources  upload  -f damian.jpg -p part0003.txt
+        python -m client.main  -out client/resources -in client/resources/complete_files create  -f filexd.txt
         ```
 ## Description of client and server arguments
 
