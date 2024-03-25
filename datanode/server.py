@@ -12,7 +12,7 @@ sys.path.append(parent_dir)
 
 
 # Import statements for protobuf files
-from protos.file_pb2 import FileDownloadRsp, UploadRsp, FileListRsp
+from protos.file_pb2 import WriteRsp,ReadFileRsp
 from protos import file_pb2_grpc as file_pb2_grpc
 
 
@@ -23,40 +23,8 @@ class FileServicer(file_pb2_grpc.FileServicer):
 
   def __init__(self, files_directory):
     self.__files_directory = files_directory
-
-  def listAll(self, request, context):
-    logger.info("sending files list")
-    files = []
-    for root, dirs, filenames in os.walk(self.__files_directory):
-        for filename in filenames:
-            file_path = os.path.join(root, filename)
-            relative_path = os.path.relpath(file_path, self.__files_directory)
-            file_size = os.path.getsize(file_path)
-            files.append((relative_path, file_size))
-
-    if not files:
-        yield FileListRsp()
-    else:
-        for file_info in files:
-            yield FileListRsp(filename=file_info[0], size=file_info[1])
     
-  def listChunksFromFile(self, request, context):
-    filename= request.filename
-    logger.info("sending partitions list from file {filename}".format(filename=filename))
-    path=os.path.join(self.__files_directory, filename)
-    print(path)
-    files = [(f, os.path.getsize(path+ "/" + f))
-      for f
-      in os.listdir(path)
-      if os.path.isfile(path + "/" + f)]
-
-    if len(files) == 0:
-      yield FileListRsp()
-    else:
-      for file in files:
-        yield FileListRsp(filename=file[0], size=file[1])
-
-  def download(self, request, context):
+  def read(self, request, context):
     file_name = request.filename
     file_partition_name= request.chunkname
     print(file_partition_name)
@@ -75,21 +43,21 @@ class FileServicer(file_pb2_grpc.FileServicer):
         piece = fh.read(FileServicer._PIECE_SIZE_IN_BYTES)
         if not piece:
           raise EOFError
-        return FileDownloadRsp(buffer=piece)    
+        return ReadFileRsp(buffer=piece)    
     except FileExistsError:
       error_detail = "File: " + file_name+"/"+file_partition_name + " not exists"
       logger.error(error_detail)
       context.set_details(error_detail)
       context.set_code(grpc.StatusCode.INVALID_ARGUMENT)
-      return FileDownloadRsp()
+      return ReadFileRsp()
     except Exception as e:
         logger.error("Error while reading file: {}".format(e))
         # Manejar cualquier otro error que pueda ocurrir durante la lectura del archivo
         context.set_code(grpc.StatusCode.INTERNAL)
         context.set_details("Error while reading file or empty file")
-        return FileDownloadRsp(buffer="")
+        return ReadFileRsp(buffer="")
     #Inserta las particiones de un archivo en el servidor
-  def upload(self, request, context):
+  def write(self, request, context):
         file_name = request.filename
         file_partition_name= request.chunkname
         file_partition=request.buffer
@@ -103,13 +71,13 @@ class FileServicer(file_pb2_grpc.FileServicer):
           logger.info("receiving {partition} partition from file: {file_name}".format(file_name=file_name,partition=file_partition_name))
           with open(file_to_write, "wb") as fh:
             fh.write(file_partition)
-          return UploadRsp()
+          return WriteRsp()
         except Exception as e:
           logger.error("Error while reading or receiving file: {}".format(e))
           # Manejar cualquier otro error que pueda ocurrir durante la lectura del archivo
           context.set_code(grpc.StatusCode.INTERNAL)
           context.set_details("Error while reading file or receiving file")
-          return UploadRsp()
+          return WriteRsp()
   
 
 

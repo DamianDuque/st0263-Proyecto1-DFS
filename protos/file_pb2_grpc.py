@@ -14,50 +14,28 @@ class FileStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.download = channel.unary_unary(
-                '/File/download',
-                request_serializer=file__pb2.FileDownloadReq.SerializeToString,
-                response_deserializer=file__pb2.FileDownloadRsp.FromString,
+        self.read = channel.unary_unary(
+                '/File/read',
+                request_serializer=file__pb2.ReadFileReq.SerializeToString,
+                response_deserializer=file__pb2.ReadFileRsp.FromString,
                 )
-        self.listAll = channel.unary_stream(
-                '/File/listAll',
-                request_serializer=file__pb2.ListReq.SerializeToString,
-                response_deserializer=file__pb2.FileListRsp.FromString,
-                )
-        self.listChunksFromFile = channel.unary_stream(
-                '/File/listChunksFromFile',
-                request_serializer=file__pb2.FileListReq.SerializeToString,
-                response_deserializer=file__pb2.FileListRsp.FromString,
-                )
-        self.upload = channel.unary_unary(
-                '/File/upload',
-                request_serializer=file__pb2.FileUploadReq.SerializeToString,
-                response_deserializer=file__pb2.UploadRsp.FromString,
+        self.write = channel.unary_unary(
+                '/File/write',
+                request_serializer=file__pb2.WriteFileReq.SerializeToString,
+                response_deserializer=file__pb2.WriteRsp.FromString,
                 )
 
 
 class FileServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def download(self, request, context):
+    def read(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def listAll(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def listChunksFromFile(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def upload(self, request, context):
+    def write(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -66,25 +44,15 @@ class FileServicer(object):
 
 def add_FileServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'download': grpc.unary_unary_rpc_method_handler(
-                    servicer.download,
-                    request_deserializer=file__pb2.FileDownloadReq.FromString,
-                    response_serializer=file__pb2.FileDownloadRsp.SerializeToString,
+            'read': grpc.unary_unary_rpc_method_handler(
+                    servicer.read,
+                    request_deserializer=file__pb2.ReadFileReq.FromString,
+                    response_serializer=file__pb2.ReadFileRsp.SerializeToString,
             ),
-            'listAll': grpc.unary_stream_rpc_method_handler(
-                    servicer.listAll,
-                    request_deserializer=file__pb2.ListReq.FromString,
-                    response_serializer=file__pb2.FileListRsp.SerializeToString,
-            ),
-            'listChunksFromFile': grpc.unary_stream_rpc_method_handler(
-                    servicer.listChunksFromFile,
-                    request_deserializer=file__pb2.FileListReq.FromString,
-                    response_serializer=file__pb2.FileListRsp.SerializeToString,
-            ),
-            'upload': grpc.unary_unary_rpc_method_handler(
-                    servicer.upload,
-                    request_deserializer=file__pb2.FileUploadReq.FromString,
-                    response_serializer=file__pb2.UploadRsp.SerializeToString,
+            'write': grpc.unary_unary_rpc_method_handler(
+                    servicer.write,
+                    request_deserializer=file__pb2.WriteFileReq.FromString,
+                    response_serializer=file__pb2.WriteRsp.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -97,7 +65,7 @@ class File(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def download(request,
+    def read(request,
             target,
             options=(),
             channel_credentials=None,
@@ -107,14 +75,14 @@ class File(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/File/download',
-            file__pb2.FileDownloadReq.SerializeToString,
-            file__pb2.FileDownloadRsp.FromString,
+        return grpc.experimental.unary_unary(request, target, '/File/read',
+            file__pb2.ReadFileReq.SerializeToString,
+            file__pb2.ReadFileRsp.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def listAll(request,
+    def write(request,
             target,
             options=(),
             channel_credentials=None,
@@ -124,43 +92,9 @@ class File(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/File/listAll',
-            file__pb2.ListReq.SerializeToString,
-            file__pb2.FileListRsp.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def listChunksFromFile(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_stream(request, target, '/File/listChunksFromFile',
-            file__pb2.FileListReq.SerializeToString,
-            file__pb2.FileListRsp.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def upload(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/File/upload',
-            file__pb2.FileUploadReq.SerializeToString,
-            file__pb2.UploadRsp.FromString,
+        return grpc.experimental.unary_unary(request, target, '/File/write',
+            file__pb2.WriteFileReq.SerializeToString,
+            file__pb2.WriteRsp.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

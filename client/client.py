@@ -5,7 +5,7 @@ from . import splitter
 
 import grpc
 
-from protos.file_pb2 import FileDownloadReq,ListReq,FileUploadReq,FileOpenReq
+from protos.file_pb2 import ReadFileReq,WriteFileReq,FileOpenReq,FileCreateReq
 from protos.file_pb2_grpc import FileStub,NameNodeServiceStub
 
 logger = logging.getLogger(__name__)
@@ -28,9 +28,7 @@ class Client:
     logger.info("created instance " + str(self))
 
   def list(self):
-    logger.info("downloading files list from server")
-    response_stream = self.stub.listAll(ListReq())
-    self.__list_files(response_stream)
+    return
   def open(self,file_name):
      namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
      logger.info("calling namenodeserver...")
@@ -50,11 +48,11 @@ class Client:
   def read(self,socket,file_name,chunk_name):
     datanodeStub= self._create_datanode_client(socket=socket)
     logger.info("downloading chunk {chunk} from file:{file_name} in socket: {socket}".format(file_name=file_name,chunk=chunk_name,socket=socket))
-    req= FileDownloadReq(filename=file_name,chunkname=chunk_name)
+    req= ReadFileReq(filename=file_name,chunkname=chunk_name)
    
     try:
       #Remote Call procedure to datanode download
-      response_bytes = datanodeStub.download(req)
+      response_bytes = datanodeStub.read(req)
       self.__saving_chunk(response_bytes, chunk_name, file_name)
     except grpc.RpcError as e:
         logger.error("gRPC error: {}".format(e.details()))
@@ -73,17 +71,31 @@ class Client:
         logger.error("Error while saving chunk: {}".format(e))
       
   
-  def upload(self,file_name):
+  def create(self,file_name):
+    namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
     splitter.hadoop_style_split(file_name, 1024 * 1024)
-    
     directory=os.path.join(self.__files_directory,file_name)
     print(os.listdir(directory))
-    for chunk in os.listdir(directory):
-      self.__uploadToServer(file_name,chunk)
+    chunksList= os.listdir(directory)
+    chunksNumber=len(chunksList)
+    try:
+      req= FileCreateReq(filename=file_name,chunks_number=chunksNumber)
+      response_stream = namenodeStub.create(req)
+      chunkIndex=0
+      for response in response_stream:
+         localization="{}".format(response.localization)
+         chunkName=chunksList[chunkIndex]
+         self.__uploadToServer(socket=localization,filename=file_name,chunk_name=chunkName)
+         chunkIndex+=1
+    except grpc.RpcError as e:
+      logger.error("gRPC error: {}".format(e.details()))    
+    except Exception as e:
+      logger.error("internal error: {}".format(e))
 
 
 
-  def __uploadToServer(self,filename,chunk_name):
+
+  def __uploadToServer(self,socket,filename,chunk_name):
     filePath=os.path.join(self.__files_directory,filename,chunk_name)
 
     try:
@@ -91,9 +103,10 @@ class Client:
         piece = fh.read(self._PIECE_SIZE_IN_BYTES)
         if not piece:
           raise EOFError
-        req= FileUploadReq(filename=filename,chunkname=chunk_name,buffer=piece)
-        self.stub.upload(req)
-        logger.info("Uploading ok")
+        req= WriteFileReq(filename=filename,chunkname=chunk_name,buffer=piece)
+        datanodeStub= self._create_datanode_client(socket=socket)
+        datanodeStub.write(req)
+        logger.info("creating file ok: chunk:{chunkname} datanode- {location}".format(chunkname=chunk_name,location=socket))
     except grpc.RpcError as e:
         logger.error("gRPC error: {}".format(e.details()))    
     except Exception as e:

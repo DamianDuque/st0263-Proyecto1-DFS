@@ -88,7 +88,7 @@ class NameNodeServer():
     self.__max_workers = max_workers
     self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
     self.__indexTable= {"file1.txt":[Chunk("chunk1","localhost:3301"),Chunk("chunk2","localhost:3300")]}
-    self.__datanodesList={"localhost:8000":True,"localhost:5050":False,"localhost:1010":True}
+    self.__datanodesList={"localhost:3301":True,"localhost:5050":False,"localhost:3300":True}
     servicer.add_NameNodeServiceServicer_to_server(FileServicer(self.__datanodesList,self.__indexTable),self.__server)
     self.__server.add_insecure_port(str(self.__ip_address) + ":" + str(self.__port))
     logger.info("created namenode instance " + str(self))

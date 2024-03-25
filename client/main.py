@@ -43,7 +43,7 @@ def main():
   if action == "open":
     client.open(args.filename)
   elif action== "create":
-    client.upload(args.filename)
+    client.create(args.filename)
   elif action== "ls":
     client.upload(args.filename)
   else:
