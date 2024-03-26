@@ -13,17 +13,19 @@ sys.path.append(parent_dir)
 
 # Import statements for protobuf files
 from protos.file_pb2 import WriteRsp,ReadFileRsp
-from protos import file_pb2_grpc as file_pb2_grpc
+from protos.file_pb2_grpc import  FileServicer, add_FileServicer_to_server
+
 
 
 logger = logging.getLogger("datanode")
 
-class FileServicer(file_pb2_grpc.FileServicer):
+class FileServicer(FileServicer):
   _PIECE_SIZE_IN_BYTES = 1024 * 1024 # 1MB
-
+  
   def __init__(self, files_directory):
     self.__files_directory = files_directory
-    
+
+  
   def read(self, request, context):
     file_name = request.filename
     file_partition_name= request.chunkname
@@ -79,22 +81,22 @@ class FileServicer(file_pb2_grpc.FileServicer):
           context.set_details("Error while reading file or receiving file")
           return WriteRsp()
   
-
+ 
 
 class DatanodeServer():
   _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
   def __init__(self, ip_address, port, max_workers, files_directory):
+        
     self.__ip_address = ip_address
     self.__port = port
     self.__max_workers = max_workers
     self.__files_directory = files_directory
     self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
-    file_pb2_grpc.add_FileServicer_to_server(FileServicer(self.__files_directory), self.__server)
+    add_FileServicer_to_server(FileServicer(self.__files_directory), self.__server)
     self.__server.add_insecure_port(str(self.__ip_address) + ":" + str(self.__port))
     logger.info("created datanode instance " + str(self))
-
-
+   
   def __str__(self):
     return "ip:{ip_address},port:{port},max_workers:{max_workers},files_directory:{files_directory}".format(ip_address=self.__ip_address,port=self.__port,max_workers=self.__max_workers,files_directory=self.__files_directory)
 
@@ -106,3 +108,4 @@ class DatanodeServer():
         time.sleep(DatanodeServer._ONE_DAY_IN_SECONDS)
     except KeyboardInterrupt:
       self.__server.stop(0)
+
