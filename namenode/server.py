@@ -35,6 +35,8 @@ class FileServicer(servicer.NameNodeServiceServicer):
       if len(availableDatanodes)==0:
         yield DatanodeList()
 
+      ## Round Robin implementation
+
       for i in range(0, chunks_number):
         index= self.__globalCount%len(availableDatanodes)
         print(index)
@@ -84,15 +86,16 @@ class FileServicer(servicer.NameNodeServiceServicer):
     self.__dataNodesList[datanodeSocket]=True
     logger.info("ping done with {datanodeInfo}".format(datanodeInfo=datanodeSocket))
     return Empty()
+  
 class NameNodeServer():
   _ONE_DAY_IN_SECONDS = 60 * 60 * 24
   def __init__(self, ip_address, port, max_workers):
     self.__ip_address = ip_address
     self.__port = port
     self.__max_workers = max_workers
-    self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
+    self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers))
     self.__indexTable= {"file1.txt":[Chunk("part0002.txt","localhost:3300")]}
-    self.__datanodesList={"localhost:3301":True,"localhost:5050":False}
+    self.__datanodesList={}
     servicer.add_NameNodeServiceServicer_to_server(FileServicer(self.__datanodesList,self.__indexTable),self.__server)
     self.__server.add_insecure_port(str(self.__ip_address) + ":" + str(self.__port))
     logger.info("created namenode instance " + str(self))
