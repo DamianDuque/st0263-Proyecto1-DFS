@@ -41,7 +41,6 @@ class FileServicer(servicer.NameNodeServiceServicer):
 
       for i in range(0, chunks_number):
         index= self.__globalCount%len(availableDatanodes)
-        print(index)
         location=availableDatanodes[index]
         self.__globalCount+=1
         yield DatanodeList(localization=location)
@@ -96,7 +95,7 @@ class FileServicer(servicer.NameNodeServiceServicer):
     chunk_id = request.partname
     datanode_id = request.location
     # Update the index table with the chunk information
-    logger.info("Report arrived from {sender} namenode for {chunk} chunk from {file} file".format(sender=datanode_id,chunk=file_id,file=chunk_id))
+    logger.info("Report arrived from {sender} datanode for {chunk} chunk from {file} file".format(sender=datanode_id,chunk=file_id,file=chunk_id))
     #self.__indexTable[file_id]=self.__indexTable[file_id].append(Chunk(chunk_id,datanode_id))
     if file_id not in self.__indexTable.keys():
      self.__indexTable[file_id] = [(chunk_id,datanode_id)]
@@ -109,7 +108,6 @@ class FileServicer(servicer.NameNodeServiceServicer):
   def listin(self, request, context):
     logger.info("Received req from client for updated index list")
     up_it_string = json.dumps(self.__indexTable)
-    logger.info("Updated index table as string: {table}".format(table=up_it_string))
     return index_table(table=up_it_string)
   
 class NameNodeServer():

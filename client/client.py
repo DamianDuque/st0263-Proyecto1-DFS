@@ -97,12 +97,10 @@ class Client:
       namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
       req= Empty()
       response_stream = namenodeStub.listin(req)
-      print(response_stream)
       tablestr = response_stream.table
       tablestr2 = str(tablestr)
       tabledic = json.loads(tablestr2)
       logger.info("Updated index table: {table}".format(table=tablestr))
-      print(type(tablestr))
     except grpc.RpcError as e:
       logger.error("gRPC error: {}".format(e.details()))    
     except Exception as e:
