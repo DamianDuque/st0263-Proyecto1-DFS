@@ -43,7 +43,7 @@ def main():
   elif action== "create":
     client.create(args.filename)
   elif action== "ls":
-    client.upload(args.filename)
+    client.list_index()
   else:
     logger.error("no such action " + action)
 

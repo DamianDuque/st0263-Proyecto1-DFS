@@ -1,11 +1,12 @@
 import logging
 import os
 import time
+import json
 from . import splitter
 
 import grpc
 
-from protos.file_pb2 import ReadFileReq,WriteFileReq,FileOpenReq,FileCreateReq
+from protos.file_pb2 import ReadFileReq,WriteFileReq,FileOpenReq,FileCreateReq,Empty
 from protos.file_pb2_grpc import FileStub,NameNodeServiceStub
 
 logger = logging.getLogger(__name__)
@@ -86,6 +87,22 @@ class Client:
          chunkName=chunksList[chunkIndex]
          self.__uploadToNameNode(socket=localization,filename=file_name,chunk_name=chunkName)
          chunkIndex+=1
+    except grpc.RpcError as e:
+      logger.error("gRPC error: {}".format(e.details()))    
+    except Exception as e:
+      logger.error("internal error: {}".format(e))
+  
+  def list_index(self):
+    try:
+      namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
+      req= Empty()
+      response_stream = namenodeStub.listin(req)
+      print(response_stream)
+      tablestr = response_stream.table
+      tablestr2 = str(tablestr)
+      tabledic = json.loads(tablestr2)
+      logger.info("Updated index table: {table}".format(table=tablestr))
+      print(type(tablestr))
     except grpc.RpcError as e:
       logger.error("gRPC error: {}".format(e.details()))    
     except Exception as e:

@@ -2,6 +2,7 @@ from concurrent import futures
 import logging
 import os
 import time
+import json
 
 import grpc
 
@@ -13,7 +14,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 from protos import file_pb2_grpc as servicer
-from protos.file_pb2 import DatanodeList,Empty
+from protos.file_pb2 import DatanodeList,Empty,index_table
 
 logger = logging.getLogger(__name__)
 
@@ -98,12 +99,18 @@ class FileServicer(servicer.NameNodeServiceServicer):
     logger.info("Report arrived from {sender} namenode for {chunk} chunk from {file} file".format(sender=datanode_id,chunk=file_id,file=chunk_id))
     #self.__indexTable[file_id]=self.__indexTable[file_id].append(Chunk(chunk_id,datanode_id))
     if file_id not in self.__indexTable.keys():
-     self.__indexTable[file_id] = [Chunk(chunk_id,datanode_id)]
+     self.__indexTable[file_id] = [(chunk_id,datanode_id)]
      logger.info("Updated index table to {table}".format(table=self.__indexTable))
     else:
-     self.__indexTable[file_id].append(Chunk(chunk_id,datanode_id))
+     self.__indexTable[file_id].append((chunk_id,datanode_id))
      logger.info("Updated index table to {table}".format(table=self.__indexTable))
     return Empty()
+  
+  def listin(self, request, context):
+    logger.info("Received req from client for updated index list")
+    up_it_string = json.dumps(self.__indexTable)
+    logger.info("Updated index table as string: {table}".format(table=up_it_string))
+    return index_table(table=up_it_string)
   
 class NameNodeServer():
   _ONE_DAY_IN_SECONDS = 60 * 60 * 24
