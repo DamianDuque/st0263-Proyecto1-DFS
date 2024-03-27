@@ -26,6 +26,7 @@ service NameNodeService {
     rpc create(FileCreateReq) returns (stream DatanodeList){}
     rpc ping(DatanodeInfo) returns (Empty){}
     rpc report(ChunkReport) returns (Empty) {}
+    rpc listin(Empty) returns (index_table) {}
 }
 
 message FileOpenReq {
@@ -50,4 +51,8 @@ message ChunkReport{
   string partname = 1;
   string filename = 2;
   string location = 3;
+}
+
+message index_table {
+  string table = 1;
 }

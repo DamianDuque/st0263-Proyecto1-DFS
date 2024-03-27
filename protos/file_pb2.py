@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nfile.proto\"\x1d\n\x0bReadFileRsp\x12\x0e\n\x06\x62uffer\x18\x01 \x01(\x0c\"2\n\x0bReadFileReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x11\n\tchunkname\x18\x02 \x01(\t\"C\n\x0cWriteFileReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x11\n\tchunkname\x18\x02 \x01(\t\x12\x0e\n\x06\x62uffer\x18\x03 \x01(\x0c\"\n\n\x08WriteRsp\"\x1f\n\x0b\x46ileOpenReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"8\n\rFileCreateReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x15\n\rchunks_number\x18\x02 \x01(\x03\"7\n\x0c\x44\x61tanodeList\x12\x14\n\x0clocalization\x18\x01 \x01(\t\x12\x11\n\tchunkname\x18\x02 \x01(\t\"\x07\n\x05\x45mpty\"\x1e\n\x0c\x44\x61tanodeInfo\x12\x0e\n\x06socket\x18\x01 \x01(\t\"C\n\x0b\x43hunkReport\x12\x10\n\x08partname\x18\x01 \x01(\t\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\x10\n\x08location\x18\x03 \x01(\t2Q\n\x04\x46ile\x12$\n\x04read\x12\x0c.ReadFileReq\x1a\x0c.ReadFileRsp\"\x00\x12#\n\x05write\x12\r.WriteFileReq\x1a\t.WriteRsp\"\x00\x32\xaa\x01\n\x0fNameNodeService\x12\'\n\x04open\x12\x0c.FileOpenReq\x1a\r.DatanodeList\"\x00\x30\x01\x12+\n\x06\x63reate\x12\x0e.FileCreateReq\x1a\r.DatanodeList\"\x00\x30\x01\x12\x1f\n\x04ping\x12\r.DatanodeInfo\x1a\x06.Empty\"\x00\x12 \n\x06report\x12\x0c.ChunkReport\x1a\x06.Empty\"\x00\x62\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\nfile.proto\"\x1d\n\x0bReadFileRsp\x12\x0e\n\x06\x62uffer\x18\x01 \x01(\x0c\"2\n\x0bReadFileReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x11\n\tchunkname\x18\x02 \x01(\t\"C\n\x0cWriteFileReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x11\n\tchunkname\x18\x02 \x01(\t\x12\x0e\n\x06\x62uffer\x18\x03 \x01(\x0c\"\n\n\x08WriteRsp\"\x1f\n\x0b\x46ileOpenReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\"8\n\rFileCreateReq\x12\x10\n\x08\x66ilename\x18\x01 \x01(\t\x12\x15\n\rchunks_number\x18\x02 \x01(\x03\"7\n\x0c\x44\x61tanodeList\x12\x14\n\x0clocalization\x18\x01 \x01(\t\x12\x11\n\tchunkname\x18\x02 \x01(\t\"\x07\n\x05\x45mpty\"\x1e\n\x0c\x44\x61tanodeInfo\x12\x0e\n\x06socket\x18\x01 \x01(\t\"C\n\x0b\x43hunkReport\x12\x10\n\x08partname\x18\x01 \x01(\t\x12\x10\n\x08\x66ilename\x18\x02 \x01(\t\x12\x10\n\x08location\x18\x03 \x01(\t\"\x1c\n\x0bindex_table\x12\r\n\x05table\x18\x01 \x01(\t2Q\n\x04\x46ile\x12$\n\x04read\x12\x0c.ReadFileReq\x1a\x0c.ReadFileRsp\"\x00\x12#\n\x05write\x12\r.WriteFileReq\x1a\t.WriteRsp\"\x00\x32\xcc\x01\n\x0fNameNodeService\x12\'\n\x04open\x12\x0c.FileOpenReq\x1a\r.DatanodeList\"\x00\x30\x01\x12+\n\x06\x63reate\x12\x0e.FileCreateReq\x1a\r.DatanodeList\"\x00\x30\x01\x12\x1f\n\x04ping\x12\r.DatanodeInfo\x1a\x06.Empty\"\x00\x12 \n\x06report\x12\x0c.ChunkReport\x1a\x06.Empty\"\x00\x12 \n\x06listin\x12\x06.Empty\x1a\x0c.index_table\"\x00\x62\x06proto3')
 
 _globals = globals()
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, _globals)
@@ -41,8 +41,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _globals['_DATANODEINFO']._serialized_end=365
   _globals['_CHUNKREPORT']._serialized_start=367
   _globals['_CHUNKREPORT']._serialized_end=434
-  _globals['_FILE']._serialized_start=436
-  _globals['_FILE']._serialized_end=517
-  _globals['_NAMENODESERVICE']._serialized_start=520
-  _globals['_NAMENODESERVICE']._serialized_end=690
+  _globals['_INDEX_TABLE']._serialized_start=436
+  _globals['_INDEX_TABLE']._serialized_end=464
+  _globals['_FILE']._serialized_start=466
+  _globals['_FILE']._serialized_end=547
+  _globals['_NAMENODESERVICE']._serialized_start=550
+  _globals['_NAMENODESERVICE']._serialized_end=754
 # @@protoc_insertion_point(module_scope)

@@ -128,6 +128,11 @@ class NameNodeServiceStub(object):
                 request_serializer=file__pb2.ChunkReport.SerializeToString,
                 response_deserializer=file__pb2.Empty.FromString,
                 )
+        self.listin = channel.unary_unary(
+                '/NameNodeService/listin',
+                request_serializer=file__pb2.Empty.SerializeToString,
+                response_deserializer=file__pb2.index_table.FromString,
+                )
 
 
 class NameNodeServiceServicer(object):
@@ -157,6 +162,12 @@ class NameNodeServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def listin(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_NameNodeServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -179,6 +190,11 @@ def add_NameNodeServiceServicer_to_server(servicer, server):
                     servicer.report,
                     request_deserializer=file__pb2.ChunkReport.FromString,
                     response_serializer=file__pb2.Empty.SerializeToString,
+            ),
+            'listin': grpc.unary_unary_rpc_method_handler(
+                    servicer.listin,
+                    request_deserializer=file__pb2.Empty.FromString,
+                    response_serializer=file__pb2.index_table.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -255,5 +271,22 @@ class NameNodeService(object):
         return grpc.experimental.unary_unary(request, target, '/NameNodeService/report',
             file__pb2.ChunkReport.SerializeToString,
             file__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def listin(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/NameNodeService/listin',
+            file__pb2.Empty.SerializeToString,
+            file__pb2.index_table.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
