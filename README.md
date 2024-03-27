@@ -20,13 +20,13 @@ Original Repo: https://github.com/r-sitko/grpc-file-transfer/blob/master/server/
         ```
 1. Launch gRPC file transfer server in first console:
     ```bash
-    python server/main.py 
+    python namenode/main.py 
     ```
 1. Launch gRPC file transfer client in second console:
   
     - open *test_file.txt* file from server to *resources/client* directory:
         ```bash
-        python -m client.main-out client/resources -in client/resources/complete_files create open  -f file1.txt        
+        python -m client.main -out client/resources -in client/resources/complete_files open -f file1.txt        
         ```
     - create file *test_file.txt* (by default in a const dir)
         ```bash

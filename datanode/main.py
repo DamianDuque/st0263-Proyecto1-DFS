@@ -1,5 +1,6 @@
 from server import DatanodeServer
 from heartBeatClient import Client
+from reports import Reports
 from threading import Thread
 import os
 import logging
@@ -24,11 +25,18 @@ def main():
   logging.basicConfig(level=logging.INFO, format=log_fmt)
   ip_address, port, max_workers, files_directory,nameNodeIP,nameNodePort = initialize()
   
+  report = Reports(
+    ip_address,
+    port,
+    nameNodeIP,
+    nameNodePort)
+
   server = DatanodeServer(
     ip_address,
     port,
     max_workers,
-    files_directory)
+    files_directory,
+    report)
 
   client = Client(
     ip_address,

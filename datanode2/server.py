@@ -1,10 +1,12 @@
 from concurrent import futures
+
 import logging
 import os
 import time
 
 import grpc
 import sys
+from reports import Reports
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -22,8 +24,9 @@ logger = logging.getLogger("datanode")
 class FileServicer(FileServicer):
   _PIECE_SIZE_IN_BYTES = 1024 * 1024 # 1MB
   
-  def __init__(self, files_directory):
+  def __init__(self, files_directory, reports):
     self.__files_directory = files_directory
+    self.__reportclass = reports
 
   
   def read(self, request, context):
@@ -73,6 +76,12 @@ class FileServicer(FileServicer):
           logger.info("receiving {partition} partition from file: {file_name}".format(file_name=file_name,partition=file_partition_name))
           with open(file_to_write, "wb") as fh:
             fh.write(file_partition)
+
+          logger.info("trying to report {partition} partition from file: {file_name}".format(file_name=file_name,partition=file_partition_name))
+          self.__reportclass.report_partition(file_name, file_partition_name)
+          logger.info("Succesfully reported {partition} partition from file: {file_name}".format(file_name=file_name,partition=file_partition_name))
+          
+          
           return WriteRsp()
         except Exception as e:
           logger.error("Error while reading or receiving file: {}".format(e))
@@ -86,14 +95,15 @@ class FileServicer(FileServicer):
 class DatanodeServer():
   _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
-  def __init__(self, ip_address, port, max_workers, files_directory):
+  def __init__(self, ip_address, port, max_workers, files_directory, reports):
         
     self.__ip_address = ip_address
     self.__port = port
     self.__max_workers = max_workers
     self.__files_directory = files_directory
+    self.__reportc = reports
     self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
-    add_FileServicer_to_server(FileServicer(self.__files_directory), self.__server)
+    add_FileServicer_to_server(FileServicer(self.__files_directory, self.__reportc), self.__server)
     self.__server.add_insecure_port(str(self.__ip_address) + ":" + str(self.__port))
     logger.info("created datanode instance " + str(self))
    

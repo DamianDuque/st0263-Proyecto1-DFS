@@ -103,6 +103,7 @@ class Client:
           raise EOFError
         req= WriteFileReq(filename=filename,chunkname=chunk_name,buffer=piece)
         datanodeStub= self._create_datanode_client(socket=socket)
+        logger.info("Trying creating file on datanode- {location}".format(location=socket))
         datanodeStub.write(req)
         logger.info("creating file ok: chunk:{chunkname} datanode- {location}".format(chunkname=chunk_name,location=socket))
     except grpc.RpcError as e:

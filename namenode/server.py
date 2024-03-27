@@ -17,6 +17,7 @@ from protos.file_pb2 import DatanodeList,Empty
 
 logger = logging.getLogger(__name__)
 
+
 class FileServicer(servicer.NameNodeServiceServicer):
   def __init__(self,dataNodesList,indexTable):
     self.__dataNodesList=dataNodesList
@@ -84,7 +85,24 @@ class FileServicer(servicer.NameNodeServiceServicer):
   def ping(self, request, context):
     datanodeSocket= request.socket
     self.__dataNodesList[datanodeSocket]=True
+    print(self.__dataNodesList[datanodeSocket])
     logger.info("ping done with {datanodeInfo}".format(datanodeInfo=datanodeSocket))
+    return Empty()
+  
+  def report(self, request, context):
+    # Process the received ChunkReport
+    file_id = request.filename
+    chunk_id = request.partname
+    datanode_id = request.location
+    # Update the index table with the chunk information
+    logger.info("Report arrived from {sender} namenode for {chunk} chunk from {file} file".format(sender=datanode_id,chunk=file_id,file=chunk_id))
+    #self.__indexTable[file_id]=self.__indexTable[file_id].append(Chunk(chunk_id,datanode_id))
+    if file_id not in self.__indexTable.keys():
+     self.__indexTable[file_id] = [Chunk(chunk_id,datanode_id)]
+     logger.info("Updated index table to {table}".format(table=self.__indexTable))
+    else:
+     self.__indexTable[file_id].append(Chunk(chunk_id,datanode_id))
+     logger.info("Updated index table to {table}".format(table=self.__indexTable))
     return Empty()
   
 class NameNodeServer():
@@ -94,7 +112,7 @@ class NameNodeServer():
     self.__port = port
     self.__max_workers = max_workers
     self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers))
-    self.__indexTable= {"file1.txt":[Chunk("part0002.txt","localhost:3300")]}
+    self.__indexTable= {}
     self.__datanodesList={}
     servicer.add_NameNodeServiceServicer_to_server(FileServicer(self.__datanodesList,self.__indexTable),self.__server)
     self.__server.add_insecure_port(str(self.__ip_address) + ":" + str(self.__port))
