@@ -123,6 +123,11 @@ class NameNodeServiceStub(object):
                 request_serializer=file__pb2.DatanodeInfo.SerializeToString,
                 response_deserializer=file__pb2.Empty.FromString,
                 )
+        self.report = channel.unary_unary(
+                '/NameNodeService/report',
+                request_serializer=file__pb2.ChunkReport.SerializeToString,
+                response_deserializer=file__pb2.Empty.FromString,
+                )
 
 
 class NameNodeServiceServicer(object):
@@ -146,6 +151,12 @@ class NameNodeServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def report(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_NameNodeServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -162,6 +173,11 @@ def add_NameNodeServiceServicer_to_server(servicer, server):
             'ping': grpc.unary_unary_rpc_method_handler(
                     servicer.ping,
                     request_deserializer=file__pb2.DatanodeInfo.FromString,
+                    response_serializer=file__pb2.Empty.SerializeToString,
+            ),
+            'report': grpc.unary_unary_rpc_method_handler(
+                    servicer.report,
+                    request_deserializer=file__pb2.ChunkReport.FromString,
                     response_serializer=file__pb2.Empty.SerializeToString,
             ),
     }
@@ -221,6 +237,23 @@ class NameNodeService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/NameNodeService/ping',
             file__pb2.DatanodeInfo.SerializeToString,
+            file__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def report(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/NameNodeService/report',
+            file__pb2.ChunkReport.SerializeToString,
             file__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -63,3 +63,13 @@ class DatanodeInfo(_message.Message):
     SOCKET_FIELD_NUMBER: _ClassVar[int]
     socket: str
     def __init__(self, socket: _Optional[str] = ...) -> None: ...
+
+class ChunkReport(_message.Message):
+    __slots__ = ("partname", "filename", "location")
+    PARTNAME_FIELD_NUMBER: _ClassVar[int]
+    FILENAME_FIELD_NUMBER: _ClassVar[int]
+    LOCATION_FIELD_NUMBER: _ClassVar[int]
+    partname: str
+    filename: str
+    location: str
+    def __init__(self, partname: _Optional[str] = ..., filename: _Optional[str] = ..., location: _Optional[str] = ...) -> None: ...
