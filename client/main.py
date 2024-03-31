@@ -29,11 +29,6 @@ def main():
 
   args = parser.parse_args()
 
-  logger.info("ip_adress:{ip_adress}, port:{port}, action:{action}"
-    .format(
-      ip_adress=namenodeIp,
-      port=namenodePort,
-      action=args.action))
 
   client = Client(namenodeIp, namenodePort,args.root_dir,args.in_dir)
 

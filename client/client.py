@@ -26,10 +26,7 @@ class Client:
     self.__files_directory=root_dir
     self.__in_dir=in_dir
     self._PIECE_SIZE_IN_BYTES = 1024 * 1024 # 1MB
-    logger.info("created instance " + str(self))
 
-  def list(self):
-    return
   def open(self,file_name):
      namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
      logger.info("calling namenodeserver...")
@@ -97,16 +94,12 @@ class Client:
       namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
       req= Empty()
       response_stream = namenodeStub.listin(req)
-      tablestr = response_stream.table
-      tablestr2 = str(tablestr)
-      tabledic = json.loads(tablestr2)
-      logger.info("Updated index table: {table}".format(table=tablestr))
+      for content in response_stream:
+         print(f"- {content.name}")
     except grpc.RpcError as e:
       logger.error("gRPC error: {}".format(e.details()))    
     except Exception as e:
       logger.error("internal error: {}".format(e))
-
-
 
 
   def __uploadToNameNode(self,socket,filename,chunk_name):
@@ -126,14 +119,3 @@ class Client:
     except Exception as e:
       logger.error("internal error: {}".format(e))
     
-
-  def __list_files(self, response_stream):
-    for response in response_stream:
-      print("file name: {}, size: {} bytes".format(response.filename, response.size))
-
-  def __str__(self):
-    return "ip:{ip_address}, port:{port}"\
-      .format(
-        ip_address=self.__ip_address,
-        port=self.__port
-        )

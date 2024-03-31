@@ -128,10 +128,10 @@ class NameNodeServiceStub(object):
                 request_serializer=file__pb2.ChunkReport.SerializeToString,
                 response_deserializer=file__pb2.Empty.FromString,
                 )
-        self.listin = channel.unary_unary(
+        self.listin = channel.unary_stream(
                 '/NameNodeService/listin',
                 request_serializer=file__pb2.Empty.SerializeToString,
-                response_deserializer=file__pb2.index_table.FromString,
+                response_deserializer=file__pb2.DirectoryContent.FromString,
                 )
 
 
@@ -191,10 +191,10 @@ def add_NameNodeServiceServicer_to_server(servicer, server):
                     request_deserializer=file__pb2.ChunkReport.FromString,
                     response_serializer=file__pb2.Empty.SerializeToString,
             ),
-            'listin': grpc.unary_unary_rpc_method_handler(
+            'listin': grpc.unary_stream_rpc_method_handler(
                     servicer.listin,
                     request_deserializer=file__pb2.Empty.FromString,
-                    response_serializer=file__pb2.index_table.SerializeToString,
+                    response_serializer=file__pb2.DirectoryContent.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -285,8 +285,8 @@ class NameNodeService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/NameNodeService/listin',
+        return grpc.experimental.unary_stream(request, target, '/NameNodeService/listin',
             file__pb2.Empty.SerializeToString,
-            file__pb2.index_table.FromString,
+            file__pb2.DirectoryContent.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -74,8 +74,8 @@ class ChunkReport(_message.Message):
     location: str
     def __init__(self, partname: _Optional[str] = ..., filename: _Optional[str] = ..., location: _Optional[str] = ...) -> None: ...
 
-class index_table(_message.Message):
-    __slots__ = ("table",)
-    TABLE_FIELD_NUMBER: _ClassVar[int]
-    table: str
-    def __init__(self, table: _Optional[str] = ...) -> None: ...
+class DirectoryContent(_message.Message):
+    __slots__ = ("name",)
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    name: str
+    def __init__(self, name: _Optional[str] = ...) -> None: ...

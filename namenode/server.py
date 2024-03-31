@@ -14,7 +14,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 from protos import file_pb2_grpc as servicer
-from protos.file_pb2 import DatanodeList,Empty,index_table
+from protos.file_pb2 import DatanodeList,Empty,DirectoryContent
 
 logger = logging.getLogger(__name__)
 
@@ -107,8 +107,13 @@ class FileServicer(servicer.NameNodeServiceServicer):
   
   def listin(self, request, context):
     logger.info("Received req from client for updated index list")
-    up_it_string = json.dumps(self.__indexTable)
-    return index_table(table=up_it_string)
+    print(self.__indexTable)
+    if len(self.__indexTable.items())<1:
+      yield DirectoryContent()
+    for key, value in self.__indexTable.items():
+      print(key)
+      yield DirectoryContent(name=key) 
+    return 
   
 class NameNodeServer():
   _ONE_DAY_IN_SECONDS = 60 * 60 * 24

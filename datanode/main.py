@@ -7,8 +7,10 @@ import logging
 from dotenv import load_dotenv
 
 def run_ping(client:Client):
-   client.ping()
-    
+  client.ping()
+def run_initial_report(report:Reports,directory):
+  print("????")
+  report.initial_report(directory=directory)
     
 load_dotenv("datanode/.env")
 #Cargando variables de entorno y retorndolas
@@ -44,9 +46,11 @@ def main():
     nameNodeIP,
     nameNodePort
   )
+  initial_report_thread= Thread(target=run_initial_report, args=(report,files_directory,))
   ping_thread = Thread(target=run_ping, args=(client,))
   ping_thread.setDaemon(True)
   ping_thread.start()
+  initial_report_thread.start()
   server.start()  
   
 
