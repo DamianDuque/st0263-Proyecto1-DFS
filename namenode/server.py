@@ -98,11 +98,9 @@ class FileServicer(servicer.NameNodeServiceServicer):
     logger.info("Report arrived from {sender} datanode for {chunk} chunk from {file} file".format(sender=datanode_id,chunk=file_id,file=chunk_id))
     #self.__indexTable[file_id]=self.__indexTable[file_id].append(Chunk(chunk_id,datanode_id))
     if file_id not in self.__indexTable.keys():
-     self.__indexTable[file_id] = [(chunk_id,datanode_id)]
+     self.__indexTable[file_id] = [Chunk(name=chunk_id,location=datanode_id)]
      logger.info("Updated index table to {table}".format(table=self.__indexTable))
-    else:
-     self.__indexTable[file_id].append((chunk_id,datanode_id))
-     logger.info("Updated index table to {table}".format(table=self.__indexTable))
+    
     return Empty()
   
   def listin(self, request, context):
@@ -145,8 +143,16 @@ class NameNodeServer():
         time.sleep(NameNodeServer._ONE_DAY_IN_SECONDS)
     except KeyboardInterrupt:
       self.__server.stop(0)
-
+  def add_entry_index_table(self, filename, part_info):
+    #si hay duplicados en valores no los agrega
+    for existing_chunk in self.__indexTable[filename]:
+        if existing_chunk.name == filename and existing_chunk.location == part_info:
+            return
+    self.__indexTable[filename] = [Chunk(name=filename,location=part_info)]
+    logger.info("Updated index table to {table}".format(table=self.__indexTable))
+    
 class Chunk:
   def __init__(self, name, location):
     self.name = name
     self.location = location
+

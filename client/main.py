@@ -11,21 +11,24 @@ def main():
   logging.basicConfig(level=logging.INFO, format=log_fmt)
   logger = logging.getLogger(__name__)
 
-  parser = argparse.ArgumentParser(description="gRPC file transfer client")
-  parser.add_argument(
-    "-out", "--root_dir", required=True, type=str, help="root client directory")
-  parser.add_argument(
-    "-in", "--in_dir", required=True, type=str, help="root client directory")
-  subparsers = parser.add_subparsers(dest="action", help="client possible actions")
+  parser = argparse.ArgumentParser(description="client")
+  subparsers = parser.add_subparsers(dest="action", help="=> actions")
   subparsers.required = True
+  subparsers.add_parser("list", help="list files on distributed file system")
 
   download_parser = subparsers.add_parser("open", help="open file from server")
+  download_parser.add_argument(
+    "-out", "--root_dir", required=True, type=str, help="root client output directory")
+  download_parser.add_argument(
+    "-in", "--in_dir", required=True, type=str, help="root client input directory ")
   download_parser.add_argument("-f", "--filename", required=True, type=str, help="file name to open")
   upload_parser = subparsers.add_parser("create",help="create and upload file to server")
+  upload_parser.add_argument(
+    "-out", "--root_dir", required=True, type=str, help="root client output directory")
+  upload_parser.add_argument(
+    "-in", "--in_dir", required=True, type=str, help="root client input directory ")
   upload_parser.add_argument("-f", "--filename", required=True, type=str, help="file name to create")
-  list_parser = subparsers.add_parser("ls",help="list directories and files")
 
-  subparsers.add_parser("list", help="list files on server")
 
   args = parser.parse_args()
 
