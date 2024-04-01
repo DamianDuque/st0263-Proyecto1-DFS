@@ -34,7 +34,7 @@ Original Repo: https://github.com/r-sitko/grpc-file-transfer/blob/master/server/
         ```
     - list of files stored in the system
         ```bash
-        python -m client.main  -out client/resources -in client/resources/complete_files ls
+        python -m client.main ls 
         ```
     - help command:
         ```bash

@@ -14,7 +14,7 @@ def main():
   parser = argparse.ArgumentParser(description="client")
   subparsers = parser.add_subparsers(dest="action", help="=> actions")
   subparsers.required = True
-  subparsers.add_parser("list", help="list files on distributed file system")
+  subparsers.add_parser("ls", help="list files on distributed file system")
 
   download_parser = subparsers.add_parser("open", help="open file from server")
   download_parser.add_argument(
@@ -31,9 +31,9 @@ def main():
 
 
   args = parser.parse_args()
-
-
-  client = Client(namenodeIp, namenodePort,args.root_dir,args.in_dir)
+  root_dir = getattr(args, "root_dir", "")
+  in_dir = getattr(args, "in_dir", "")
+  client = Client(namenodeIp, namenodePort,root_dir,in_dir)
 
   action = args.action
   if action == "open":
