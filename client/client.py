@@ -3,6 +3,7 @@ import os
 import time
 import json
 from . import splitter
+from . import unificator
 
 import grpc
 
@@ -51,6 +52,8 @@ class Client:
       #Remote Call procedure to datanode download
       response_bytes = datanodeStub.read(req)
       self.__saving_chunk(response_bytes, chunk_name, file_name)
+      unificator.unificator(split_dir=self.__in_dir, filename = file_name)
+      logger.info("succesfully downloaded file: {file_name} from socket: {socket}.".format(file_name=file_name,chunk=chunk_name,socket=socket))
     except grpc.RpcError as e:
         logger.error("gRPC error: {}".format(e.details()))
     
@@ -58,7 +61,7 @@ class Client:
   def __saving_chunk(self, response_bytes, out_file_name, out_file_dir):
     try:
       #Si directorio no existe, lo crea para guardar las particiones del archivo.
-      directory=os.path.join(self.__files_directory, out_file_dir)
+      directory=os.path.join(self.__in_dir, out_file_dir)
       if not os.path.exists(directory):
         os.mkdir(directory)
       with open(directory+"/"+out_file_name, "wb") as fh:
@@ -111,7 +114,7 @@ class Client:
           raise EOFError
         req= WriteFileReq(filename=filename,chunkname=chunk_name,buffer=piece)
         datanodeStub= self._create_datanode_client(socket=socket)
-        logger.info("Trying creating file on datanode- {location}".format(location=socket))
+        logger.info("Trying to create file on datanode- {location}".format(location=socket))
         datanodeStub.write(req)
         logger.info("creating file ok: chunk:{chunkname} datanode- {location}".format(chunkname=chunk_name,location=socket))
     except grpc.RpcError as e:
