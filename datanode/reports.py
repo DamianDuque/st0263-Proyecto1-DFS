@@ -45,13 +45,14 @@ class Reports:
             datanode_id = str(self.__my_ip)+":"+str(self.__my_port)
             for directorio, subdirectorios, archivos in os.walk(directory):
                   file= os.path.basename(directorio)
+                  print(directorio,directory)
                   if str(directorio) == directory:
                         continue
                   for archivo in archivos:
                         current_dir.append((file,archivo,datanode_id))
                   
-            if not current_dir:
-                  report_tosend=ChunkReport()
+            if  len(current_dir)<1:
+                  report_tosend=ChunkReport(location=datanode_id)
                   namenode_stub.report(report_tosend)
             else:
                   report_tosend=ChunkReport()

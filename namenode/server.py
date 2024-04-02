@@ -95,12 +95,13 @@ class FileServicer(servicer.NameNodeServiceServicer):
     chunk_id = request.partname
     datanode_id = request.location
     # Update the index table with the chunk information
-    logger.info("Report arrived from {sender} datanode for {chunk} chunk from {file} file".format(sender=datanode_id,chunk=file_id,file=chunk_id))
-    #self.__indexTable[file_id]=self.__indexTable[file_id].append(Chunk(chunk_id,datanode_id))
-    if file_id not in self.__indexTable.keys():
-     self.__indexTable[file_id] = [Chunk(name=chunk_id,location=datanode_id)]
-     logger.info("Updated index table to {table}".format(table=self.__indexTable))
-    
+    #add entry to index table
+    if file_id!="" and chunk_id!="":
+      logger.info("Report arrived from {sender} datanode for {chunk} chunk from {file} file".format(sender=datanode_id,chunk=file_id,file=chunk_id))
+      self.add_entry_index_table(filename=file_id,part_info=chunk_id,socket=datanode_id)
+    else:
+      logger.info("Empty report arrived from {sender} datanode".format(sender=datanode_id))
+
     return Empty()
   
   def listin(self, request, context):
@@ -112,6 +113,14 @@ class FileServicer(servicer.NameNodeServiceServicer):
       print(key)
       yield DirectoryContent(name=key) 
     return 
+  def add_entry_index_table(self, filename, part_info,socket):
+    #si hay duplicados en valores no los agrega
+    if filename in self.__indexTable.keys():
+      for existing_chunk in self.__indexTable[filename]:
+          if existing_chunk.name == filename and existing_chunk.location == part_info:
+              return
+    self.__indexTable[filename] = [Chunk(name=part_info,location=socket)]
+    logger.info("Updated index table to {table}".format(table=self.__indexTable))
   
 class NameNodeServer():
   _ONE_DAY_IN_SECONDS = 60 * 60 * 24
@@ -143,13 +152,7 @@ class NameNodeServer():
         time.sleep(NameNodeServer._ONE_DAY_IN_SECONDS)
     except KeyboardInterrupt:
       self.__server.stop(0)
-  def add_entry_index_table(self, filename, part_info):
-    #si hay duplicados en valores no los agrega
-    for existing_chunk in self.__indexTable[filename]:
-        if existing_chunk.name == filename and existing_chunk.location == part_info:
-            return
-    self.__indexTable[filename] = [Chunk(name=filename,location=part_info)]
-    logger.info("Updated index table to {table}".format(table=self.__indexTable))
+  
     
 class Chunk:
   def __init__(self, name, location):

@@ -9,7 +9,6 @@ from dotenv import load_dotenv
 def run_ping(client:Client):
   client.ping()
 def run_initial_report(report:Reports,directory):
-  print("????")
   report.initial_report(directory=directory)
     
 load_dotenv("datanode/.env")
