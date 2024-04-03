@@ -26,11 +26,15 @@ Original Repo: https://github.com/r-sitko/grpc-file-transfer/blob/master/server/
   
     - open *test_file.txt* file from server to *resources/client* directory:
         ```bash
-        python -m client.main open -out client/resources/downloaded_files -in client/resources/downloaded_files -f file.txt        
+        python -m client.main open -out client/resources/downloaded_files -f file.txt        
         ```
     - create file *test_file.txt* (by default in a const dir)
         ```bash
         python -m client.main create -out client/resources/partitioned_files -in client/resources/complete_files -f file.txt
+        ```
+    - append data from file *test_file.txt* to *test_file.txt* (by default in a const dir)
+        ```bash
+        python -m client.main append -out client/resources/partitioned_files -in client/resources/complete_files -f file.txt -fdfs file.txt
         ```
     - list of files stored in the system
         ```bash

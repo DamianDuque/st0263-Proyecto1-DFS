@@ -19,8 +19,8 @@ def main():
   download_parser = subparsers.add_parser("open", help="open file from server")
   download_parser.add_argument(
     "-out", "--root_dir", required=True, type=str, help="root client output directory")
-  download_parser.add_argument(
-    "-in", "--in_dir", required=True, type=str, help="root client input directory ")
+  #download_parser.add_argument(
+  #  "-in", "--in_dir", required=True, type=str, help="root client input directory ")
   download_parser.add_argument("-f", "--filename", required=True, type=str, help="file name to open")
   upload_parser = subparsers.add_parser("create",help="create and upload file to server")
   upload_parser.add_argument(

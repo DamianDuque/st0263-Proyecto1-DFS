@@ -52,7 +52,7 @@ class Client:
       #Remote Call procedure to datanode download
       response_bytes = datanodeStub.read(req)
       self.__saving_chunk(response_bytes, chunk_name, file_name)
-      unificator.unificator(split_dir=self.__in_dir, filename = file_name)
+      unificator.unificator(split_dir=self.__files_directory, filename = file_name)
       logger.info("succesfully downloaded file: {file_name} from socket: {socket}.".format(file_name=file_name,chunk=chunk_name,socket=socket))
     except grpc.RpcError as e:
         logger.error("gRPC error: {}".format(e.details()))
@@ -61,7 +61,7 @@ class Client:
   def __saving_chunk(self, response_bytes, out_file_name, out_file_dir):
     try:
       #Si directorio no existe, lo crea para guardar las particiones del archivo.
-      directory=os.path.join(self.__in_dir, out_file_dir)
+      directory=os.path.join(self.__files_directory, out_file_dir)
       if not os.path.exists(directory):
         os.mkdir(directory)
       with open(directory+"/"+out_file_name, "wb") as fh:
@@ -92,6 +92,7 @@ class Client:
     except Exception as e:
       logger.error("internal error: {}".format(e))
   
+
   def list_index(self):
     try:
       namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
@@ -121,4 +122,3 @@ class Client:
         logger.error("gRPC error: {}".format(e.details()))    
     except Exception as e:
       logger.error("internal error: {}".format(e))
-    
