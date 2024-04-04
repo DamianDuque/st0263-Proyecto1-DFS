@@ -41,7 +41,7 @@ class Client:
          #print(localization, chunkname)
          self.read(socket=localization,file_name=file_name,chunk_name=chunkname)
       
-      
+      unificator.unificator(split_dir=self.__files_directory, filename = file_name)
          
      except grpc.RpcError as e:
         logger.error("gRPC error: {}".format(e.details()))
@@ -56,7 +56,6 @@ class Client:
       #Remote Call procedure to datanode download
       response_bytes = datanodeStub.read(req)
       self.__saving_chunk(response_bytes, chunk_name, file_name)
-      unificator.unificator(split_dir=self.__files_directory, filename = file_name)
       logger.info("succesfully downloaded file: {file_name} from socket: {socket}.".format(file_name=file_name,chunk=chunk_name,socket=socket))
     except grpc.RpcError as e:
         logger.error("gRPC error: {}".format(e.details()))

@@ -27,7 +27,7 @@ def unificator(split_dir, filename):
             path_parte = os.path.join(directorio_destino, parte)
             with open(path_parte, 'rb') as archivo_parte:
                 archivo_destino.write(archivo_parte.read())
-                return finalFilename
+        return finalFilename
 
 if __name__ == "__main__":
     split_dir = "Magic.mp4_dir"
