@@ -34,7 +34,7 @@ Original Repo: https://github.com/r-sitko/grpc-file-transfer/blob/master/server/
         ```
     - append data from file *test_file.txt* to *test_file.txt* (by default in a const dir)
         ```bash
-        python -m client.main append -out client/resources/partitioned_files -in client/resources/complete_files -f file.txt -fdfs file.txt
+        python -m client.main append -out client/resources/partitioned_files -in client/resources/complete_files -f b.txt -fdfs a.txt
         ```
     - list of files stored in the system
         ```bash

@@ -109,28 +109,15 @@ class Client:
       logger.error("internal error: {}".format(e))
 
 
-  def __uploadToNameNode(self,socket,filename,chunk_name):
-    filePath=os.path.join(self.__files_directory,filename,chunk_name)
+  def __uploadToNameNode(self,socket,filename,chunk_name, pathpart=None):
+    if pathpart:
+       filePath = pathpart
+    else:
+       filePath = os.path.join(self.__files_directory,filename,chunk_name)
+    
     try:
+
       with open(filePath, "rb") as fh:
-        piece = fh.read(self._PIECE_SIZE_IN_BYTES)
-        if not piece:
-          raise EOFError
-        req= WriteFileReq(filename=filename,chunkname=chunk_name,buffer=piece)
-        datanodeStub= self._create_datanode_client(socket=socket)
-        logger.info("Trying to create file on datanode- {location}".format(location=socket))
-        datanodeStub.write(req)
-        logger.info("creating file ok: chunk:{chunkname} datanode- {location}".format(chunkname=chunk_name,location=socket))
-    except grpc.RpcError as e:
-        logger.error("gRPC error: {}".format(e.details()))    
-    except Exception as e:
-      logger.error("internal error: {}".format(e))
-
-
-
-  def __uploadAppendsToNameNode(self,socket,filename,chunk_name, partpath):
-    try:
-      with open(partpath, "rb") as fh:
         piece = fh.read(self._PIECE_SIZE_IN_BYTES)
         if not piece:
           raise EOFError
@@ -158,12 +145,12 @@ class Client:
          localization="{}".format(response.localization)
          chunkName=chunksList[chunkIndex]
          part_dir = os.path.join(appends_dir,chunkName)
-         self.__uploadAppendsToNameNode(socket=localization,filename=file_name,chunk_name=chunkName, partpath=part_dir)
+         self.__uploadToNameNode(socket=localization,filename=file_name,chunk_name=chunkName, pathpart=part_dir)
          chunkIndex+=1
     except grpc.RpcError as e:
       logger.error("gRPC error: {}".format(e.details()))    
-    #except Exception as e:
-    #  logger.error("internal error: {}".format(e))
+    except Exception as e:
+      logger.error("internal error: {}".format(e))
 
 
 
