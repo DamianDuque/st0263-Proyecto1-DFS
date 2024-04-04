@@ -21,6 +21,7 @@ class Client:
   def _create_datanode_client(self,socket:str):
         channel: grpc.Channel = grpc.insecure_channel(socket)
         return  FileStub(channel)
+  
   def __init__(self, ip_address, port,root_dir,in_dir):
     self.__ip_address = ip_address
     self.__port = port
@@ -37,7 +38,10 @@ class Client:
       for response in response_stream:
          localization="{}".format(response.localization)
          chunkname="{}".format(response.chunkname)
+         #print(localization, chunkname)
          self.read(socket=localization,file_name=file_name,chunk_name=chunkname)
+      
+      
          
      except grpc.RpcError as e:
         logger.error("gRPC error: {}".format(e.details()))
@@ -122,3 +126,77 @@ class Client:
         logger.error("gRPC error: {}".format(e.details()))    
     except Exception as e:
       logger.error("internal error: {}".format(e))
+
+
+
+  def __uploadAppendsToNameNode(self,socket,filename,chunk_name, partpath):
+    try:
+      with open(partpath, "rb") as fh:
+        piece = fh.read(self._PIECE_SIZE_IN_BYTES)
+        if not piece:
+          raise EOFError
+        req= WriteFileReq(filename=filename,chunkname=chunk_name,buffer=piece)
+        datanodeStub= self._create_datanode_client(socket=socket)
+        logger.info("Trying to create file on datanode- {location}".format(location=socket))
+        datanodeStub.write(req)
+        logger.info("creating file ok: chunk:{chunkname} datanode- {location}".format(chunkname=chunk_name,location=socket))
+    except grpc.RpcError as e:
+        logger.error("gRPC error: {}".format(e.details()))    
+    except Exception as e:
+      logger.error("internal error: {}".format(e))
+
+
+  def create_appends(self,file_name,appends_dir):
+    
+    try:
+      namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
+      chunksList= os.listdir(appends_dir)
+      chunksNumber=len(chunksList)
+      req= FileCreateReq(filename=file_name,chunks_number=chunksNumber)
+      response_stream = namenodeStub.create(req)
+      chunkIndex=0
+      for response in response_stream:
+         localization="{}".format(response.localization)
+         chunkName=chunksList[chunkIndex]
+         part_dir = os.path.join(appends_dir,chunkName)
+         self.__uploadAppendsToNameNode(socket=localization,filename=file_name,chunk_name=chunkName, partpath=part_dir)
+         chunkIndex+=1
+    except grpc.RpcError as e:
+      logger.error("gRPC error: {}".format(e.details()))    
+    #except Exception as e:
+    #  logger.error("internal error: {}".format(e))
+
+
+
+  def append(self,file_name, file_name_dfs):
+      namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
+      logger.info("calling namenodeserver...")
+      req= FileOpenReq(filename=file_name_dfs)
+      try:
+        response_stream = namenodeStub.open(req)
+        for response in response_stream:
+          localization="{}".format(response.localization)
+          chunkname="{}".format(response.chunkname)
+          last_response = (localization, chunkname)
+      
+        if last_response is not None:
+        # Call the read function only once using information from the last response
+          self.read(socket=last_response[0], file_name=file_name_dfs, chunk_name=last_response[1])
+
+        donwloaded_chunk_path = self.__files_directory+"/"+file_name_dfs
+        re_split_path = self.__files_directory+"/"+"re-split"
+        #print("FILENAME", chunkname)
+        #print("IN_PATH", donwloaded_chunk_path)
+        #print("OUT_PATH", re_split_path)
+        #print("SECOND_FILENAME", file_name_dfs)
+        #print("SECOND_IN_PATH", self.__in_dir)
+        
+        splitter.hadoop_style_split(filename=chunkname,in_path=donwloaded_chunk_path,out_path=re_split_path, chunk_size= self._PIECE_SIZE_IN_BYTES, second_filename=file_name, second_in_path=self.__in_dir)
+        directorio_destino = f"{re_split_path}/{file_name}"
+        self.create_appends(file_name_dfs, directorio_destino)
+        
+      except grpc.RpcError as e:
+          logger.error("gRPC error: {}".format(e.details()))
+          return
+      
+      
