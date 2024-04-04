@@ -28,6 +28,15 @@ def main():
   upload_parser.add_argument(
     "-in", "--in_dir", required=True, type=str, help="root client input directory ")
   upload_parser.add_argument("-f", "--filename", required=True, type=str, help="file name to create")
+  
+  
+  append_parser = subparsers.add_parser("append",help="Append new data to a file stored in the system")
+  append_parser.add_argument(
+    "-out", "--root_dir", required=True, type=str, help="root client output directory")
+  append_parser.add_argument(
+    "-in", "--in_dir", required=True, type=str, help="root client input directory ")
+  append_parser.add_argument("-f", "--filename", required=True, type=str, help="local file with new data")
+  append_parser.add_argument("-fdfs", "--filenamedfs", required=True, type=str, help="DFS stored file to append new data into")
 
 
   args = parser.parse_args()
@@ -42,6 +51,8 @@ def main():
     client.create(args.filename)
   elif action== "ls":
     client.list_index()
+  elif action== "append":
+    client.append(args.filename, args.filenamedfs)
   else:
     logger.error("no such action " + action)
 
