@@ -29,6 +29,9 @@ class FileServicer(servicer.NameNodeServiceServicer):
     filename= request.filename
     chunks_number= request.chunks_number
 
+    #if filename in self.__indexTable.keys():
+    #  pass
+
     availableDatanodes = []
     for key, value in self.__dataNodesList.items():
       if value == True:
@@ -40,6 +43,11 @@ class FileServicer(servicer.NameNodeServiceServicer):
       ## Round Robin implementation
 
       for i in range(0, chunks_number):
+        if filename in self.__indexTable.keys() and i == 0:
+          lastChunk = self.__indexTable[filename][-1]
+          yield DatanodeList(localization=lastChunk.location)
+          continue
+
         index= self.__globalCount%len(availableDatanodes)
         location=availableDatanodes[index]
         self.__globalCount+=1
@@ -97,7 +105,7 @@ class FileServicer(servicer.NameNodeServiceServicer):
     # Update the index table with the chunk information
     #add entry to index table
     if file_id!="" and chunk_id!="":
-      logger.info("Report arrived from {sender} datanode for {chunk} chunk from {file} file".format(sender=datanode_id,chunk=file_id,file=chunk_id))
+      logger.info("Report arrived from {sender} datanode for {chunk} chunk from {file} file".format(sender=datanode_id,chunk=chunk_id,file=file_id))
       self.add_entry_index_table(filename=file_id,part_info=chunk_id,socket=datanode_id)
     else:
       logger.info("Empty report arrived from {sender} datanode".format(sender=datanode_id))
@@ -117,9 +125,13 @@ class FileServicer(servicer.NameNodeServiceServicer):
     #si hay duplicados en valores no los agrega
     if filename in self.__indexTable.keys():
       for existing_chunk in self.__indexTable[filename]:
-          if existing_chunk.name == filename and existing_chunk.location == part_info:
+          if existing_chunk.name == part_info and existing_chunk.location == socket:
               return
-    self.__indexTable[filename] = [Chunk(name=part_info,location=socket)]
+      self.__indexTable[filename].append(Chunk(name=part_info,location=socket))
+      logger.info("Updated index table to {table}".format(table=self.__indexTable))
+      return
+    else:
+      self.__indexTable[filename] = [Chunk(name=part_info,location=socket)]
     logger.info("Updated index table to {table}".format(table=self.__indexTable))
   
 class NameNodeServer():
