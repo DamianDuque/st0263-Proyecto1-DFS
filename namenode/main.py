@@ -2,6 +2,7 @@ from server import NameNodeServer
 import os
 import logging
 from dotenv import load_dotenv
+from threading import Thread
 
 
 load_dotenv("namenode/.env")
@@ -21,6 +22,11 @@ def main():
     ip_address,
     port,
     max_workers)
+
+  '''checkAliveness_thread = Thread(target=run_ping, args=(client,))
+  checkAliveness_thread.setDaemon(True)
+  checkAliveness_thread.start()'''
+
   server.start()
 
 if __name__ == "__main__":

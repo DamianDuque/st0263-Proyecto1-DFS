@@ -2,11 +2,10 @@ from concurrent import futures
 import logging
 import os
 import time
-import json
-
 import grpc
-
 import sys
+from entities.index_table import IndexTable
+from entities.datanode_list import DatanodeListStructure,Datanode
 #probando
 # Get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -20,36 +19,31 @@ logger = logging.getLogger(__name__)
 
 
 class FileServicer(servicer.NameNodeServiceServicer):
-  def __init__(self,dataNodesList,indexTable):
+  def __init__(self,dataNodesList:DatanodeListStructure,indexTable:IndexTable):
     self.__dataNodesList=dataNodesList
     self.__indexTable=indexTable
     self.__globalCount=0
+    self.__dataNodeIdCounter=0
 
   def create(self, request, context):
     filename= request.filename
     chunks_number= request.chunks_number
-
-    #if filename in self.__indexTable.keys():
-    #  pass
-
-    availableDatanodes = []
-    for key, value in self.__dataNodesList.items():
-      if value == True:
-        availableDatanodes.append(key)
+    #Datanodes must be leaders
+    availableDatanodes = self.__dataNodesList.get_leaders()
+    
     try:
       if len(availableDatanodes)==0:
         yield DatanodeList()
-
       ## Round Robin implementation
-
       for i in range(0, chunks_number):
-        if filename in self.__indexTable.keys() and i == 0:
+        """ if filename in self.__indexTable.keys() and i == 0:
           lastChunk = self.__indexTable[filename][-1]
           yield DatanodeList(localization=lastChunk.location)
-          continue
-
+          continue """
+        
         index= self.__globalCount%len(availableDatanodes)
-        location=availableDatanodes[index]
+        datanode:Datanode=availableDatanodes[index]
+        location=datanode.location
         self.__globalCount+=1
         yield DatanodeList(localization=location)
         
@@ -90,10 +84,13 @@ class FileServicer(servicer.NameNodeServiceServicer):
         yield DatanodeList()
         return
   
-  def ping(self, request, context):
+  def heart_beat(self, request, context):
+    datanodeId=request.id
     datanodeSocket= request.socket
-    self.__dataNodesList[datanodeSocket]=True
-    print(self.__dataNodesList[datanodeSocket])
+    datanodeIsLeader= request.is_leader
+    currentTime= time.time()
+    dataNodeToSave= Datanode(uid=datanodeId,location=datanodeSocket,isLeader=datanodeIsLeader,last_hearth_beat=currentTime)
+    self.__dataNodesList.add_datanode(dataNodeToSave)
     logger.info("ping done with {datanodeInfo}".format(datanodeInfo=datanodeSocket))
     return Empty()
   
@@ -106,7 +103,7 @@ class FileServicer(servicer.NameNodeServiceServicer):
     #add entry to index table
     if file_id!="" and chunk_id!="":
       logger.info("Report arrived from {sender} datanode for {chunk} chunk from {file} file".format(sender=datanode_id,chunk=chunk_id,file=file_id))
-      self.add_entry_index_table(filename=file_id,part_info=chunk_id,socket=datanode_id)
+      self.__indexTable.add_entry_index_table(filename=file_id,part_info=chunk_id,datanode_id=datanode_id)
     else:
       logger.info("Empty report arrived from {sender} datanode".format(sender=datanode_id))
 
@@ -121,18 +118,7 @@ class FileServicer(servicer.NameNodeServiceServicer):
       print(key)
       yield DirectoryContent(name=key) 
     return 
-  def add_entry_index_table(self, filename, part_info,socket):
-    #si hay duplicados en valores no los agrega
-    if filename in self.__indexTable.keys():
-      for existing_chunk in self.__indexTable[filename]:
-          if existing_chunk.name == part_info and existing_chunk.location == socket:
-              return
-      self.__indexTable[filename].append(Chunk(name=part_info,location=socket))
-      logger.info("Updated index table to {table}".format(table=self.__indexTable))
-      return
-    else:
-      self.__indexTable[filename] = [Chunk(name=part_info,location=socket)]
-    logger.info("Updated index table to {table}".format(table=self.__indexTable))
+  
   
 class NameNodeServer():
   _ONE_DAY_IN_SECONDS = 60 * 60 * 24
@@ -141,8 +127,8 @@ class NameNodeServer():
     self.__port = port
     self.__max_workers = max_workers
     self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers))
-    self.__indexTable= {}
-    self.__datanodesList={}
+    self.__indexTable= IndexTable(logger)
+    self.__datanodesList= DatanodeListStructure()
     servicer.add_NameNodeServiceServicer_to_server(FileServicer(self.__datanodesList,self.__indexTable),self.__server)
     self.__server.add_insecure_port(str(self.__ip_address) + ":" + str(self.__port))
     logger.info("created namenode instance " + str(self))
@@ -164,10 +150,14 @@ class NameNodeServer():
         time.sleep(NameNodeServer._ONE_DAY_IN_SECONDS)
     except KeyboardInterrupt:
       self.__server.stop(0)
+
+
+
+
+ 
+
+
+
+
   
-    
-class Chunk:
-  def __init__(self, name, location):
-    self.name = name
-    self.location = location
 

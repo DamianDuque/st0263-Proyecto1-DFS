@@ -1,5 +1,6 @@
 from server import DatanodeServer
 from heartBeatClient import Client
+from uuid import uuid4
 from reports import Reports
 from threading import Thread
 import os
@@ -26,9 +27,10 @@ def main():
   logging.basicConfig(level=logging.INFO, format=log_fmt)
   ip_address, port, max_workers, files_directory,nameNodeIP,nameNodePort = initialize()
   
+  datanodeId = str(uuid4())[:8]
+
   report = Reports(
-    ip_address,
-    port,
+    datanodeId,
     nameNodeIP,
     nameNodePort)
 
@@ -40,8 +42,7 @@ def main():
     report)
 
   client = Client(
-    ip_address,
-    port,
+    datanodeId,
     nameNodeIP,
     nameNodePort
   )

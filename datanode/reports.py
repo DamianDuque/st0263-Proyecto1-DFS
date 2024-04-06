@@ -16,13 +16,12 @@ from protos.file_pb2_grpc import  NameNodeServiceStub
 logger = logging.getLogger("datanode-client")
 
 class Reports:
-      def __init__(self,datanodeIP,datanodePort,nameNodeIP,nameNodePort):
-        self.__my_ip = datanodeIP
-        self.__my_port=datanodePort
+      def __init__(self, datanodeId, nameNodeIP, nameNodePort):
+        self.__my_id = datanodeId
         self.__namenode_ip=nameNodeIP
         self.__namenode_port=nameNodePort
-      def _create_name_node_client(self,host:int ,port:int):
-        socket="{}:{}".format(host,port)
+      def _create_name_node_client(self, host:int ,port:int):
+        socket="{}:{}".format(host, port)
         channel: grpc.Channel = grpc.insecure_channel(socket)
         return  NameNodeServiceStub(channel)
       def report_partition(self, file_name, file_partition_name):
@@ -30,7 +29,7 @@ class Reports:
             # Create a gRPC channel to connect to the Namenode
             namenode_stub = self._create_name_node_client(self.__namenode_ip, self.__namenode_port)
             # Create a ChunkReport message
-            datanode_id = str(self.__my_ip)+":"+str(self.__my_port)
+            datanode_id = str(self.__my_id)
             report_tosend = ChunkReport(filename=file_name, partname=file_partition_name, location=datanode_id)
             # Send the ChunkReport to the Namenode
             namenode_stub.report(report_tosend)
@@ -42,7 +41,7 @@ class Reports:
             namenode_stub = self._create_name_node_client(self.__namenode_ip, self.__namenode_port)
             logger.info("Initial Report displaying")
             current_dir = []
-            datanode_id = str(self.__my_ip)+":"+str(self.__my_port)
+            datanode_id = str(self.__my_id)
             for directorio, subdirectorios, archivos in os.walk(directory):
                   file= os.path.basename(directorio)
                   print(directorio,directory)

@@ -59,10 +59,14 @@ class Empty(_message.Message):
     def __init__(self) -> None: ...
 
 class DatanodeInfo(_message.Message):
-    __slots__ = ("socket",)
+    __slots__ = ("id", "socket", "is_leader")
+    ID_FIELD_NUMBER: _ClassVar[int]
     SOCKET_FIELD_NUMBER: _ClassVar[int]
+    IS_LEADER_FIELD_NUMBER: _ClassVar[int]
+    id: str
     socket: str
-    def __init__(self, socket: _Optional[str] = ...) -> None: ...
+    is_leader: bool
+    def __init__(self, id: _Optional[str] = ..., socket: _Optional[str] = ..., is_leader: bool = ...) -> None: ...
 
 class ChunkReport(_message.Message):
     __slots__ = ("partname", "filename", "location")

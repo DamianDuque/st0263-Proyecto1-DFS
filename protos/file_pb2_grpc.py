@@ -118,8 +118,8 @@ class NameNodeServiceStub(object):
                 request_serializer=file__pb2.FileCreateReq.SerializeToString,
                 response_deserializer=file__pb2.DatanodeList.FromString,
                 )
-        self.ping = channel.unary_unary(
-                '/NameNodeService/ping',
+        self.heart_beat = channel.unary_unary(
+                '/NameNodeService/heart_beat',
                 request_serializer=file__pb2.DatanodeInfo.SerializeToString,
                 response_deserializer=file__pb2.Empty.FromString,
                 )
@@ -150,7 +150,7 @@ class NameNodeServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ping(self, request, context):
+    def heart_beat(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -181,8 +181,8 @@ def add_NameNodeServiceServicer_to_server(servicer, server):
                     request_deserializer=file__pb2.FileCreateReq.FromString,
                     response_serializer=file__pb2.DatanodeList.SerializeToString,
             ),
-            'ping': grpc.unary_unary_rpc_method_handler(
-                    servicer.ping,
+            'heart_beat': grpc.unary_unary_rpc_method_handler(
+                    servicer.heart_beat,
                     request_deserializer=file__pb2.DatanodeInfo.FromString,
                     response_serializer=file__pb2.Empty.SerializeToString,
             ),
@@ -241,7 +241,7 @@ class NameNodeService(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def ping(request,
+    def heart_beat(request,
             target,
             options=(),
             channel_credentials=None,
@@ -251,7 +251,7 @@ class NameNodeService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/NameNodeService/ping',
+        return grpc.experimental.unary_unary(request, target, '/NameNodeService/heart_beat',
             file__pb2.DatanodeInfo.SerializeToString,
             file__pb2.Empty.FromString,
             options, channel_credentials,
