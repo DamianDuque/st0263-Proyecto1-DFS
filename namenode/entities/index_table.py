@@ -1,6 +1,6 @@
 import logging
-from datanode_list import DatanodeListStructure
-from chunk_struct import Chunk
+from .datanode_list import DatanodeListStructure
+from .chunk_struct import Chunk
 class IndexTable:
   def __init__(self,logger:logging.Logger,datanodeListInSystem:DatanodeListStructure):
     self.__indexTable={}

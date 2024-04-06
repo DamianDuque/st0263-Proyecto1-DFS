@@ -1,4 +1,4 @@
-from datanode_list import DatanodeListStructure
+from .datanode_list import DatanodeListStructure
 class Chunk:
   def __init__(self, name:str,datanodesList:DatanodeListStructure):
     self.name = name
