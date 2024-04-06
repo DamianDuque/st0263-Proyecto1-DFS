@@ -1,10 +1,9 @@
 from .datanode_list import DatanodeListStructure
 class Chunk:
-  def __init__(self, name:str,datanodesList:DatanodeListStructure):
+  def __init__(self, name:str,datanodesInSystem:DatanodeListStructure):
     self.name = name
-    self.locations = DatanodeListStructure
-    self.datanodesList=datanodesList
+    self.locations = DatanodeListStructure()
+    self.datanodesInSystem=datanodesInSystem
   def add_location(self,datanode_id: str):
-    datanodeInfo= self.datanodesList.get_datanode(datanode_id)
-    print(datanodeInfo)
+    datanodeInfo= self.datanodesInSystem.get_datanode(datanode_id)
     self.locations.add_datanode(datanodeInfo)

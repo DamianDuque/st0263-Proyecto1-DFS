@@ -97,16 +97,16 @@ class FileServicer(servicer.NameNodeServiceServicer):
   def report(self, request, context):
     # Process the received ChunkReport
     file_id = request.filename
-    chunk_id = request.partname
+    chunk_name = request.partname
     datanode_id = request.location
     # Update the index table with the chunk information
     #add entry to index table
-    if file_id!="" and chunk_id!="":
-      logger.info("Report arrived from {sender} datanode for {chunk} chunk from {file} file".format(sender=datanode_id,chunk=chunk_id,file=file_id))
-      self.__indexTable.add_entry_index_table(filename=file_id,part_info=chunk_id,datanode_id=datanode_id)
+    if file_id!="" and chunk_name!="":
+      logger.info("Report arrived from {sender} datanode for {chunk} chunk from {file} file".format(sender=datanode_id,chunk=chunk_name,file=file_id))
+      self.__indexTable.add_entry_index_table(filename=file_id,part_name=chunk_name,datanode_id=datanode_id)
     else:
       logger.info("Empty report arrived from {sender} datanode".format(sender=datanode_id))
-
+    self.__indexTable.print_indexTable()
     return Empty()
   
   def listin(self, request, context):
