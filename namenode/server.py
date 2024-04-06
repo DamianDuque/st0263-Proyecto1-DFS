@@ -89,7 +89,7 @@ class FileServicer(servicer.NameNodeServiceServicer):
     datanodeSocket= request.socket
     datanodeIsLeader= request.is_leader
     currentTime= time.time()
-    dataNodeToSave= Datanode(uid=datanodeId,location=datanodeSocket,isLeader=datanodeIsLeader,last_hearth_beat=currentTime)
+    dataNodeToSave= Datanode(uid=datanodeId,location=datanodeSocket,isLeader=datanodeIsLeader,last_heart_beat=currentTime)
     self.__dataNodesList.add_datanode(dataNodeToSave)
     logger.info("ping done with {datanodeInfo}".format(datanodeInfo=datanodeSocket))
     return Empty()
@@ -127,8 +127,8 @@ class NameNodeServer():
     self.__port = port
     self.__max_workers = max_workers
     self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers))
-    self.__indexTable= IndexTable(logger)
     self.__datanodesList= DatanodeListStructure()
+    self.__indexTable= IndexTable(logger, self.__datanodesList)
     servicer.add_NameNodeServiceServicer_to_server(FileServicer(self.__datanodesList,self.__indexTable),self.__server)
     self.__server.add_insecure_port(str(self.__ip_address) + ":" + str(self.__port))
     logger.info("created namenode instance " + str(self))

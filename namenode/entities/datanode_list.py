@@ -1,6 +1,6 @@
 import time
 class Datanode:
-    def __init__(self,uid:str,location:str,isLeader:bool,last_heart_beat:int):
+    def __init__(self,uid:str,location:str,isLeader:bool,last_heart_beat:time):
         self.uid = uid
         self.is_alive= False
         self.is_leader= isLeader   

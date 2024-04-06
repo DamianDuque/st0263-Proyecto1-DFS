@@ -43,6 +43,8 @@ def main():
 
   client = Client(
     datanodeId,
+    ip_address, 
+    port,
     nameNodeIP,
     nameNodePort
   )
