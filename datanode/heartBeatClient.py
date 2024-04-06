@@ -3,7 +3,11 @@ from protos.file_pb2 import DatanodeInfo
 import time
 import logging
 import grpc
+from dotenv import load_dotenv
+import os
 logger = logging.getLogger("datanode-client")
+load_dotenv("datanode/.env")
+TTL = int(os.getenv("TTL"))
 
 class Client:
     def __init__(self, datanodeId, datanodeIP, datanodePort, nameNodeIP, nameNodePort):
@@ -27,7 +31,7 @@ class Client:
             while True:
                 namenodeStub.heart_beat(req)
                 logger.info("ping done")
-                time.sleep(60)
+                time.sleep(TTL)
         except grpc.RpcError as e:
             logger.error("gRPC error: {}".format(e.details()))
         
