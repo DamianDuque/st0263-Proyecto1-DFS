@@ -121,7 +121,7 @@ class NameNodeServiceStub(object):
         self.heart_beat = channel.unary_unary(
                 '/NameNodeService/heart_beat',
                 request_serializer=file__pb2.DatanodeInfo.SerializeToString,
-                response_deserializer=file__pb2.Empty.FromString,
+                response_deserializer=file__pb2.HeartBeatRsp.FromString,
                 )
         self.report = channel.unary_unary(
                 '/NameNodeService/report',
@@ -184,7 +184,7 @@ def add_NameNodeServiceServicer_to_server(servicer, server):
             'heart_beat': grpc.unary_unary_rpc_method_handler(
                     servicer.heart_beat,
                     request_deserializer=file__pb2.DatanodeInfo.FromString,
-                    response_serializer=file__pb2.Empty.SerializeToString,
+                    response_serializer=file__pb2.HeartBeatRsp.SerializeToString,
             ),
             'report': grpc.unary_unary_rpc_method_handler(
                     servicer.report,
@@ -253,7 +253,7 @@ class NameNodeService(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/NameNodeService/heart_beat',
             file__pb2.DatanodeInfo.SerializeToString,
-            file__pb2.Empty.FromString,
+            file__pb2.HeartBeatRsp.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

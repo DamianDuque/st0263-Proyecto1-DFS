@@ -48,6 +48,16 @@ class FileCreateReq(_message.Message):
     operation: str
     def __init__(self, filename: _Optional[str] = ..., chunks_number: _Optional[int] = ..., operation: _Optional[str] = ...) -> None: ...
 
+class HeartBeatRsp(_message.Message):
+    __slots__ = ("cluster_id", "id_datanode", "is_leader")
+    CLUSTER_ID_FIELD_NUMBER: _ClassVar[int]
+    ID_DATANODE_FIELD_NUMBER: _ClassVar[int]
+    IS_LEADER_FIELD_NUMBER: _ClassVar[int]
+    cluster_id: int
+    id_datanode: str
+    is_leader: bool
+    def __init__(self, cluster_id: _Optional[int] = ..., id_datanode: _Optional[str] = ..., is_leader: bool = ...) -> None: ...
+
 class DatanodeList(_message.Message):
     __slots__ = ("localization", "chunkname")
     LOCALIZATION_FIELD_NUMBER: _ClassVar[int]

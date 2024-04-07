@@ -24,7 +24,7 @@ message WriteRsp {
 service NameNodeService {
     rpc open(FileOpenReq) returns (stream DatanodeList) {}
     rpc create(FileCreateReq) returns (stream CreateRsp){}
-    rpc heart_beat(DatanodeInfo) returns (Empty){}
+    rpc heart_beat(DatanodeInfo) returns (HeartBeatRsp){}
     rpc report(ChunkReport) returns (Empty) {}
     rpc listin(Empty) returns (stream DirectoryContent) {}
 }
@@ -36,6 +36,12 @@ message FileCreateReq{
     string filename = 1;
     int64 chunks_number = 2;
     string operation = 3;
+}
+
+message HeartBeatRsp{
+    int64 cluster_id = 1;
+    string id_datanode = 2;
+    bool is_leader = 3;
 }
 
 message DatanodeList{
