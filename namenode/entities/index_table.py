@@ -9,6 +9,13 @@ class IndexTable:
     self.datanodeListInSystem=datanodeListInSystem
     self.logger = logger
 
+
+  def getIndexTable(self):
+    return self.__indexTable
+
+  def get_all_chunk_data_from_name(self, filename):
+    return self.__indexTable[filename]
+  
   def getChunkNames(self, filename):
     chunkNames = []
     for existingChunk in self.__indexTable[filename]:
@@ -28,15 +35,15 @@ class IndexTable:
           chunk.add_location(datanode_id)
           self.__indexTable[filename].append(chunk)
         
-      self.logger.info("Updated index table to {table}".format(table=self.__indexTable.values()))
+      self.logger.info("Updated index table")
     else:
       chunk= Chunk(name=part_name,datanodesInSystem=self.datanodeListInSystem)
       chunk.add_location(datanode_id) 
       self.__indexTable[filename] = [chunk]
-      self.logger.info("Updated index table to {table}".format(table=self.__indexTable.values()))
+      self.logger.info("Updated index table")
     
       
-  def print_indexTable(self):
+  '''def print_indexTable(self):
     for filename in self.__indexTable.keys():
       print(filename+"\n")
       print(len(self.__indexTable[filename]))
@@ -44,4 +51,4 @@ class IndexTable:
         print(f' || PRINT --- name: {existingChunk.name} || ')
         for location in existingChunk.locations.get_alive_datanodes():
           datanode:Datanode=location
-          print(f'|| PRINT --- location {datanode.location} ||')
+          print(f'|| PRINT --- location {datanode.location} ||')'''
