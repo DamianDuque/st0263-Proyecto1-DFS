@@ -35,12 +35,7 @@ class FileServicer(servicer.NameNodeServiceServicer):
       if len(availableDatanodes)==0:
         yield DatanodeList()
       ## Round Robin implementation
-      for i in range(0, chunks_number):
-        """ if filename in self.__indexTable.keys() and i == 0:
-          lastChunk = self.__indexTable[filename][-1]
-          yield DatanodeList(localization=lastChunk.location)
-          continue """
-        
+      for i in range(0, chunks_number):       
         index= self.__globalCount%len(availableDatanodes)
         datanode:Datanode=availableDatanodes[index]
         location=datanode.location
@@ -57,17 +52,19 @@ class FileServicer(servicer.NameNodeServiceServicer):
         return
 
   def open(self, request, context):
-    try:
-        
+    try:    
         filename= request.filename
-        list= self.__indexTable[filename]
+        chunk_list= self.__indexTable[filename]
         if len(list) == 0:
           yield DatanodeList()
         else:
-          for chunk in list:
-            localization=chunk.location
-            name= chunk.name
-            yield DatanodeList(localization=localization,chunkname=name)
+          for chunk in chunk_list:
+            localizations_available=chunk.locations.get_alive_datanodes()
+            print(localizations_available)
+            #for localization in localizations_available:
+
+            
+            #yield DatanodeList(localization=localization,chunkname=name)
 
     except KeyError as e:
        # Archivo no existe, no encuentra la llave
