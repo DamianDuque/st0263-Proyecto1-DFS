@@ -36,8 +36,8 @@ class Client:
      try:
       response_stream = namenodeStub.open(req)
       for response in response_stream:
-         localization="{}".format(response.localization)
-         chunkname="{}".format(response.chunkname)
+         localization="{}".format(response.datanode_list.localization)
+         chunkname="{}".format(response.datanode_list.chunkname)
          #print(localization, chunkname)
          self.read(socket=localization,file_name=file_name,chunk_name=chunkname)
       
@@ -82,11 +82,14 @@ class Client:
       directory=os.path.join(self.__files_directory,file_name)
       chunksList= os.listdir(directory)
       chunksNumber=len(chunksList)
-      req= FileCreateReq(filename=file_name,chunks_number=chunksNumber, operation="Create" )
+      req = FileCreateReq(filename=file_name,chunks_number=chunksNumber, operation="Create" )
       response_stream = namenodeStub.create(req)
+      
       chunkIndex=0
       for response in response_stream:
-         localization="{}".format(response.localization)
+         if response.HasField('warning_message'):
+           raise Exception(response.warning_message.message)
+         localization="{}".format(response.datanode_list.localization)
          chunkName=chunksList[chunkIndex]
          self.__uploadToNameNode(socket=localization,filename=file_name,chunk_name=chunkName)
          chunkIndex+=1
@@ -142,7 +145,7 @@ class Client:
       response_stream = namenodeStub.create(req)
       chunkIndex=0
       for response in response_stream:
-         localization="{}".format(response.localization)
+         localization="{}".format(response.datanode_list.localization)
          chunkName=chunksList[chunkIndex]
          part_dir = os.path.join(appends_dir,chunkName)
          self.__uploadToNameNode(socket=localization,filename=file_name,chunk_name=chunkName, pathpart=part_dir)
@@ -161,8 +164,8 @@ class Client:
       try:
         response_stream = namenodeStub.open(req)
         for response in response_stream:
-          localization="{}".format(response.localization)
-          chunkname="{}".format(response.chunkname)
+          localization="{}".format(response.datanode_list.localization)
+          chunkname="{}".format(response.datanode_list.chunkname)
           last_response = (localization, chunkname)
 
         if last_response is not None:
@@ -180,9 +183,8 @@ class Client:
         splitter.hadoop_style_split(filename=chunkname,in_path=donwloaded_chunk_path,out_path=re_split_path, chunk_size= self._PIECE_SIZE_IN_BYTES, second_filename=file_name, second_in_path=self.__in_dir)
         directorio_destino = f"{re_split_path}/{file_name}"
         self.create_appends(file_name_dfs, directorio_destino)
-        
+               
       except grpc.RpcError as e:
           logger.error("gRPC error: {}".format(e.details()))
-          return
-      
+          return    
       
