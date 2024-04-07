@@ -1,7 +1,6 @@
 import logging
 from .datanode_list import DatanodeListStructure,Datanode
 from .chunk_struct import Chunk
-from colorama import Fore, Style
 
 class IndexTable:
   def __init__(self, logger:logging.Logger, datanodeListInSystem:DatanodeListStructure):

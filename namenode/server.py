@@ -27,9 +27,12 @@ class FileServicer(servicer.NameNodeServiceServicer):
     self.__indexTable=indexTable
     self.__globalCount=0
     self.__cluster_assign_count=0
-    self.__cluster_list=[Cluster(id = 0),Cluster(id = 1)]
+    self.__cluster_list=[Cluster(id = 0,datanodesInSystem=self.__dataNodesList),Cluster(id = 1,datanodesInSystem=self.__dataNodesList)]
     self.__used_ids = {}
 
+  def getClusterList(self):
+    return self.__cluster_list
+  
   def create(self, request, context):
     filename= request.filename
     chunks_number= request.chunks_number
@@ -101,7 +104,9 @@ class FileServicer(servicer.NameNodeServiceServicer):
   
   def heart_beat(self, request, context):
     datanodeId=request.id
-    if datanodeId == "1":
+    clusterId=request.cluster
+    print("CLUSTER ACTUAL ",clusterId)
+    if datanodeId == "":
       while True:
         datanodeId = str(uuid4())[:8]
         if datanodeId not in self.__used_ids:
@@ -111,25 +116,33 @@ class FileServicer(servicer.NameNodeServiceServicer):
     datanodeSocket= request.socket
     currentTime= time.time()
     dataNodeToSave= Datanode(uid=datanodeId,location=datanodeSocket,isLeader=None,last_heart_beat=currentTime)
-    
-    
-    index= self.__cluster_assign_count%len(self.__cluster_list)
+    index=0
+    print(index,len(self.__cluster_list),self.__cluster_assign_count)
+    #Assign cluster to datanode incoming
+    print
+    if clusterId==-1:
+      print("New One")
+      index= self.__cluster_assign_count%len(self.__cluster_list)
+      self.__cluster_assign_count+=1
+    else:
+      index= clusterId
+    print("INDEX OF CLUSTER ",index)
     cluster:Cluster=self.__cluster_list[index]
     is_leader=cluster.add_datanode(dataNodeToSave)
-    self.__cluster_assign_count+=1
+    for cosa in self.__cluster_list:
+      cosa.print()
+    
     dataNodeToSave.is_leader=is_leader
     self.__dataNodesList.add_datanode(dataNodeToSave)
-    for cluster in self.__cluster_list:
-      cluster.print()
     logger.info("ping done with {datanodeInfo}".format(datanodeInfo=datanodeSocket))
-    cluster_id = cluster.get_id()
-    return HeartBeatRsp(cluster_id=cluster_id, id_datanode=datanodeId, is_leader=dataNodeToSave.is_leader)
+    return HeartBeatRsp(cluster_id=index, id_datanode=datanodeId, is_leader=dataNodeToSave.is_leader)
   
   def report(self, request, context):
     # Process the received ChunkReport
     file_id = request.filename
     chunk_name = request.partname
     datanode_id = request.location
+    print(datanode_id)
     # Update the index table with the chunk information
     #add entry to index table
     if file_id!="" and chunk_name!="":
@@ -149,7 +162,8 @@ class FileServicer(servicer.NameNodeServiceServicer):
       print(key)
       yield DirectoryContent(name=key) 
     return 
-  
+  def check_datanodes_are_alive(self):
+    pass
   
 class NameNodeServer():
   _ONE_DAY_IN_SECONDS = 60 * 60 * 24

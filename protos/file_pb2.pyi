@@ -85,14 +85,14 @@ class Empty(_message.Message):
     def __init__(self) -> None: ...
 
 class DatanodeInfo(_message.Message):
-    __slots__ = ("id", "socket", "is_leader")
+    __slots__ = ("id", "socket", "cluster")
     ID_FIELD_NUMBER: _ClassVar[int]
     SOCKET_FIELD_NUMBER: _ClassVar[int]
-    IS_LEADER_FIELD_NUMBER: _ClassVar[int]
+    CLUSTER_FIELD_NUMBER: _ClassVar[int]
     id: str
     socket: str
-    is_leader: bool
-    def __init__(self, id: _Optional[str] = ..., socket: _Optional[str] = ..., is_leader: bool = ...) -> None: ...
+    cluster: int
+    def __init__(self, id: _Optional[str] = ..., socket: _Optional[str] = ..., cluster: _Optional[int] = ...) -> None: ...
 
 class ChunkReport(_message.Message):
     __slots__ = ("partname", "filename", "location")

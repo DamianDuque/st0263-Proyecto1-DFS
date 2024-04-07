@@ -1,5 +1,4 @@
 import time
-from colorama import Fore, Back, Style
 
 class Datanode:
     def __init__(self,uid:str,location:str,isLeader:bool,last_heart_beat:time):
@@ -17,9 +16,7 @@ class Datanode:
         return self.is_leader()
 
     def print_datanode(self):
-        print(Fore.GREEN)
         print(f'id {self.uid},location{self.location}, is alive? {self.is_alive}')
-        print(Style.RESET_ALL)
     
 class DatanodeListStructure:
     def __init__(self):
