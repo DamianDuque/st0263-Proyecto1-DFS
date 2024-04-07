@@ -4,7 +4,6 @@ import time
 import logging
 import grpc
 from dotenv import load_dotenv
-import os
 logger = logging.getLogger("datanode-client")
 load_dotenv("datanode/.env")
 
@@ -26,7 +25,7 @@ class Client:
         datanodeSocket= "{}:{}".format(self.__my_ip, self.__my_port)
         print(datanodeSocket)
         namenodeStub= self._create_name_node_client(self.__namenode_ip,self.__namenode_port)
-        req= DatanodeInfo(id=self.__my_id, socket=datanodeSocket, is_leader=False)
+        req= DatanodeInfo(id=self.__my_id, socket=datanodeSocket, is_leader=True)
         try:
             while True:
                 namenodeStub.heart_beat(req)
