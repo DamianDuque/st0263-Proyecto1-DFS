@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from . import file_pb2 as file__pb2
+import file_pb2 as file__pb2
 
 
 class FileStub(object):
@@ -116,7 +116,7 @@ class NameNodeServiceStub(object):
         self.create = channel.unary_stream(
                 '/NameNodeService/create',
                 request_serializer=file__pb2.FileCreateReq.SerializeToString,
-                response_deserializer=file__pb2.DatanodeList.FromString,
+                response_deserializer=file__pb2.CreateRsp.FromString,
                 )
         self.heart_beat = channel.unary_unary(
                 '/NameNodeService/heart_beat',
@@ -179,7 +179,7 @@ def add_NameNodeServiceServicer_to_server(servicer, server):
             'create': grpc.unary_stream_rpc_method_handler(
                     servicer.create,
                     request_deserializer=file__pb2.FileCreateReq.FromString,
-                    response_serializer=file__pb2.DatanodeList.SerializeToString,
+                    response_serializer=file__pb2.CreateRsp.SerializeToString,
             ),
             'heart_beat': grpc.unary_unary_rpc_method_handler(
                     servicer.heart_beat,
@@ -236,7 +236,7 @@ class NameNodeService(object):
             metadata=None):
         return grpc.experimental.unary_stream(request, target, '/NameNodeService/create',
             file__pb2.FileCreateReq.SerializeToString,
-            file__pb2.DatanodeList.FromString,
+            file__pb2.CreateRsp.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 

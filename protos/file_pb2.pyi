@@ -1,6 +1,6 @@
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional
+from typing import ClassVar as _ClassVar, Mapping as _Mapping, Optional as _Optional, Union as _Union
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -39,12 +39,14 @@ class FileOpenReq(_message.Message):
     def __init__(self, filename: _Optional[str] = ...) -> None: ...
 
 class FileCreateReq(_message.Message):
-    __slots__ = ("filename", "chunks_number")
+    __slots__ = ("filename", "chunks_number", "operation")
     FILENAME_FIELD_NUMBER: _ClassVar[int]
     CHUNKS_NUMBER_FIELD_NUMBER: _ClassVar[int]
+    OPERATION_FIELD_NUMBER: _ClassVar[int]
     filename: str
     chunks_number: int
-    def __init__(self, filename: _Optional[str] = ..., chunks_number: _Optional[int] = ...) -> None: ...
+    operation: str
+    def __init__(self, filename: _Optional[str] = ..., chunks_number: _Optional[int] = ..., operation: _Optional[str] = ...) -> None: ...
 
 class DatanodeList(_message.Message):
     __slots__ = ("localization", "chunkname")
@@ -53,6 +55,20 @@ class DatanodeList(_message.Message):
     localization: str
     chunkname: str
     def __init__(self, localization: _Optional[str] = ..., chunkname: _Optional[str] = ...) -> None: ...
+
+class WarningMessage(_message.Message):
+    __slots__ = ("message",)
+    MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    message: str
+    def __init__(self, message: _Optional[str] = ...) -> None: ...
+
+class CreateRsp(_message.Message):
+    __slots__ = ("datanode_list", "warning_message")
+    DATANODE_LIST_FIELD_NUMBER: _ClassVar[int]
+    WARNING_MESSAGE_FIELD_NUMBER: _ClassVar[int]
+    datanode_list: DatanodeList
+    warning_message: WarningMessage
+    def __init__(self, datanode_list: _Optional[_Union[DatanodeList, _Mapping]] = ..., warning_message: _Optional[_Union[WarningMessage, _Mapping]] = ...) -> None: ...
 
 class Empty(_message.Message):
     __slots__ = ()

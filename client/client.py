@@ -82,7 +82,7 @@ class Client:
       directory=os.path.join(self.__files_directory,file_name)
       chunksList= os.listdir(directory)
       chunksNumber=len(chunksList)
-      req= FileCreateReq(filename=file_name,chunks_number=chunksNumber)
+      req= FileCreateReq(filename=file_name,chunks_number=chunksNumber, operation="Create" )
       response_stream = namenodeStub.create(req)
       chunkIndex=0
       for response in response_stream:
@@ -138,7 +138,7 @@ class Client:
       namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
       chunksList= os.listdir(appends_dir)
       chunksNumber=len(chunksList)
-      req= FileCreateReq(filename=file_name,chunks_number=chunksNumber)
+      req= FileCreateReq(filename=file_name,chunks_number=chunksNumber, operation="Append")
       response_stream = namenodeStub.create(req)
       chunkIndex=0
       for response in response_stream:
@@ -164,7 +164,7 @@ class Client:
           localization="{}".format(response.localization)
           chunkname="{}".format(response.chunkname)
           last_response = (localization, chunkname)
-      
+
         if last_response is not None:
         # Call the read function only once using information from the last response
           self.read(socket=last_response[0], file_name=file_name_dfs, chunk_name=last_response[1])
