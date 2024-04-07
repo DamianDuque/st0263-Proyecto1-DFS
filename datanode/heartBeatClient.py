@@ -7,15 +7,15 @@ from dotenv import load_dotenv
 import os
 logger = logging.getLogger("datanode-client")
 load_dotenv("datanode/.env")
-TTL = int(os.getenv("TTL"))
 
 class Client:
-    def __init__(self, datanodeId, datanodeIP, datanodePort, nameNodeIP, nameNodePort):
+    def __init__(self, datanodeId, datanodeIP, datanodePort, nameNodeIP, nameNodePort, ttl):
         self.__my_id = datanodeId
         self.__my_ip = datanodeIP
         self.__my_port=datanodePort
         self.__namenode_ip=nameNodeIP
         self.__namenode_port=nameNodePort
+        self.__ttl=ttl
 
     def _create_name_node_client(self, host:int, port:int):
         socket="{}:{}".format(host, port)
@@ -31,7 +31,7 @@ class Client:
             while True:
                 namenodeStub.heart_beat(req)
                 logger.info("ping done")
-                time.sleep(TTL)
+                time.sleep(self.__ttl)
         except grpc.RpcError as e:
             logger.error("gRPC error: {}".format(e.details()))
         
