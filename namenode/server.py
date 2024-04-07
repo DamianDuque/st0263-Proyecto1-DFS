@@ -1,11 +1,13 @@
 from concurrent import futures
 import logging
 import os
+import random
 import time
 import grpc
 import sys
 from entities.index_table import IndexTable
 from entities.datanode_list import DatanodeListStructure,Datanode
+from entities.cluster import Cluster
 #probando
 # Get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -13,7 +15,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 from protos import file_pb2_grpc as servicer
-from protos.file_pb2 import DatanodeList,Empty,DirectoryContent
+from protos.file_pb2 import DatanodeList,Empty,DirectoryContent, CreateRsp, WarningMessage
 
 logger = logging.getLogger(__name__)
 
@@ -23,24 +25,37 @@ class FileServicer(servicer.NameNodeServiceServicer):
     self.__dataNodesList=dataNodesList
     self.__indexTable=indexTable
     self.__globalCount=0
-    self.__dataNodeIdCounter=0
+    self.__cluster_assign_count=0
+    self.__cluster_list=[Cluster(),Cluster()]
 
   def create(self, request, context):
     filename= request.filename
     chunks_number= request.chunks_number
+    operation_type = request.operation
     #Datanodes must be leaders
     availableDatanodes = self.__dataNodesList.get_leaders()
-    
+    print(availableDatanodes)
     try:
       if len(availableDatanodes)==0:
-        yield DatanodeList()
+        yield CreateRsp(datanode_list= DatanodeList())
       ## Round Robin implementation
-      for i in range(0, chunks_number):       
+      indexTable = self.__indexTable.getIndexTable()
+      for i in range(0, chunks_number):    
+        
+        if filename in indexTable.keys() and i == 0:
+          if operation_type == "Append":
+            lastChunk = self.__indexTable[filename][-1]
+            yield CreateRsp(datanode_list=DatanodeList(localization=lastChunk.location))
+            continue
+          elif operation_type == "Create":
+            return CreateRsp(WarningMessage = "File already stored in dfs system. If you are certain it is a new file please rename it. It you want to add new information to an existing file please store it in a separate file and upload it using the 'Append' method.")
+          
+
         index= self.__globalCount%len(availableDatanodes)
         datanode:Datanode=availableDatanodes[index]
         location=datanode.location
         self.__globalCount+=1
-        yield DatanodeList(localization=location)
+        yield CreateRsp(datanode_list= DatanodeList(localization=location))
         
     
     except Exception as e:
@@ -48,37 +63,38 @@ class FileServicer(servicer.NameNodeServiceServicer):
         # Manejar cualquier otro error que pueda ocurrir durante la lectura del archivo
         context.set_code(grpc.StatusCode.INTERNAL)
         context.set_details("Error while sending locations")
-        yield DatanodeList()
+        yield CreateRsp(datanode_list= DatanodeList())
         return
 
   def open(self, request, context):
     try:    
         filename= request.filename
-        chunk_list= self.__indexTable[filename]
-        if len(list) == 0:
-          yield DatanodeList()
+        chunk_list= self.__indexTable.get_all_chunk_data_from_name(filename=filename)
+        if len(chunk_list) == 0:
+          yield CreateRsp( datanode_list= DatanodeList())
         else:
           for chunk in chunk_list:
-            localizations_available=chunk.locations.get_alive_datanodes()
+            localizations_available:DatanodeListStructure=chunk.locations.get_alive_datanodes()
             print(localizations_available)
-            #for localization in localizations_available:
-
-            
-            #yield DatanodeList(localization=localization,chunkname=name)
-
+            random_index = random.randint(0, len(localizations_available)-1)
+            datanode:Datanode=localizations_available[random_index]
+            location=datanode.location
+            name= chunk.name
+            return DatanodeList(localization=location,chunkname=name)
+          
     except KeyError as e:
        # Archivo no existe, no encuentra la llave
        logger.error("Error filename doesn't exist {}".format(e))
        context.set_code(grpc.StatusCode.NOT_FOUND)
        context.set_details("Error filename doesn't exist")
-       yield DatanodeList()
+       yield CreateRsp(datanode_list= DatanodeList())
        return
     except Exception as e:
         logger.error("Error while sending locations: {}".format(e))
         # Manejar cualquier otro error que pueda ocurrir durante la lectura del archivo
         context.set_code(grpc.StatusCode.INTERNAL)
         context.set_details("Error while sending locations")
-        yield DatanodeList()
+        yield CreateRsp(datanode_list = DatanodeList())
         return
   
   def heart_beat(self, request, context):
@@ -87,8 +103,18 @@ class FileServicer(servicer.NameNodeServiceServicer):
     datanodeIsLeader= request.is_leader
     currentTime= time.time()
     dataNodeToSave= Datanode(uid=datanodeId,location=datanodeSocket,isLeader=datanodeIsLeader,last_heart_beat=currentTime)
+    
+    
+    index= self.__cluster_assign_count%len(self.__cluster_list)
+    cluster:Cluster=self.__cluster_list[index]
+    is_leader=cluster.add_datanode(dataNodeToSave)
+    self.__cluster_assign_count+=1
+    dataNodeToSave.is_leader=is_leader
     self.__dataNodesList.add_datanode(dataNodeToSave)
+    for cluster in self.__cluster_list:
+      cluster.print()
     logger.info("ping done with {datanodeInfo}".format(datanodeInfo=datanodeSocket))
+
     return Empty()
   
   def report(self, request, context):
@@ -103,7 +129,7 @@ class FileServicer(servicer.NameNodeServiceServicer):
       self.__indexTable.add_entry_index_table(filename=file_id,part_name=chunk_name,datanode_id=datanode_id)
     else:
       logger.info("Empty report arrived from {sender} datanode".format(sender=datanode_id))
-    self.__indexTable.print_indexTable()
+    #self.__indexTable.print_indexTable()
     return Empty()
   
   def listin(self, request, context):
