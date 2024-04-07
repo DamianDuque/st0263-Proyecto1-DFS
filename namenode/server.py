@@ -8,6 +8,7 @@ import sys
 from entities.index_table import IndexTable
 from entities.datanode_list import DatanodeListStructure,Datanode
 from entities.cluster import Cluster
+from uuid import uuid4
 #probando
 # Get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -15,7 +16,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 from protos import file_pb2_grpc as servicer
-from protos.file_pb2 import DatanodeList,Empty,DirectoryContent, CreateRsp, WarningMessage
+from protos.file_pb2 import DatanodeList,Empty,DirectoryContent, CreateRsp, WarningMessage, HeartBeatRsp
 
 logger = logging.getLogger(__name__)
 
@@ -26,7 +27,8 @@ class FileServicer(servicer.NameNodeServiceServicer):
     self.__indexTable=indexTable
     self.__globalCount=0
     self.__cluster_assign_count=0
-    self.__cluster_list=[Cluster(),Cluster()]
+    self.__cluster_list=[Cluster(id = 0),Cluster(id = 1)]
+    self.__used_ids = {}
 
   def create(self, request, context):
     filename= request.filename
@@ -48,7 +50,7 @@ class FileServicer(servicer.NameNodeServiceServicer):
             yield CreateRsp(datanode_list=DatanodeList(localization=lastChunk.location))
             continue
           elif operation_type == "Create":
-            return CreateRsp(WarningMessage = "File already stored in dfs system. If you are certain it is a new file please rename it. It you want to add new information to an existing file please store it in a separate file and upload it using the 'Append' method.")
+            yield CreateRsp(warning_message = WarningMessage( message= "File already stored in DFS system. If you are certain it is a new file, please rename it. Otherwise, if you want to add new information to an existing file, please store it in a separate file and upload it using the 'Append' method."))
           
 
         index= self.__globalCount%len(availableDatanodes)
@@ -99,10 +101,16 @@ class FileServicer(servicer.NameNodeServiceServicer):
   
   def heart_beat(self, request, context):
     datanodeId=request.id
+    if datanodeId == "1":
+      while True:
+        datanodeId = str(uuid4())[:8]
+        if datanodeId not in self.__used_ids:
+          self.__used_ids[datanodeId] = 1
+          break
+    
     datanodeSocket= request.socket
-    datanodeIsLeader= request.is_leader
     currentTime= time.time()
-    dataNodeToSave= Datanode(uid=datanodeId,location=datanodeSocket,isLeader=datanodeIsLeader,last_heart_beat=currentTime)
+    dataNodeToSave= Datanode(uid=datanodeId,location=datanodeSocket,isLeader=None,last_heart_beat=currentTime)
     
     
     index= self.__cluster_assign_count%len(self.__cluster_list)
@@ -114,8 +122,8 @@ class FileServicer(servicer.NameNodeServiceServicer):
     for cluster in self.__cluster_list:
       cluster.print()
     logger.info("ping done with {datanodeInfo}".format(datanodeInfo=datanodeSocket))
-
-    return Empty()
+    cluster_id = cluster.get_id()
+    return HeartBeatRsp(cluster_id=cluster_id, id_datanode=datanodeId, is_leader=dataNodeToSave.is_leader)
   
   def report(self, request, context):
     # Process the received ChunkReport
@@ -173,14 +181,6 @@ class NameNodeServer():
         time.sleep(NameNodeServer._ONE_DAY_IN_SECONDS)
     except KeyboardInterrupt:
       self.__server.stop(0)
-
-
-
-
- 
-
-
-
 
   
 

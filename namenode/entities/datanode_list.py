@@ -13,6 +13,9 @@ class Datanode:
         time_difference = time.time() - self.last_heart_beat
         self.is_alive = time_difference <= 80
 
+    def get_is_leader(self):
+        return self.is_leader()
+
     def print_datanode(self):
         print(Fore.GREEN)
         print(f'id {self.uid},location{self.location}, is alive? {self.is_alive}')

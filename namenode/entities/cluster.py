@@ -2,7 +2,8 @@ from .datanode_list import Datanode, DatanodeListStructure
 from colorama import Fore, Style
 
 class Cluster:
-    def __init__(self):
+    def __init__(self, id):
+        self.cluster_id = id
         self.datanodeList = DatanodeListStructure()
         self.leader_id:str= ""
         
@@ -13,6 +14,9 @@ class Cluster:
             is_leader=True
         self.datanodeList.add_datanode(datanode)
         return is_leader
+
+    def get_id(self):
+        return self.cluster_id
 
     def print(self):
         print(Fore.RED)
