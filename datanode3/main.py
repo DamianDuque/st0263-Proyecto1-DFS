@@ -42,7 +42,7 @@ def main():
     nameNodeIP,
     nameNodePort,
     ttl,
-    is_leader, 
+    is_leader,
     dotenv_path
   ) 
   #datanode_id,cluster_id = run_fist_ping(client=client)
