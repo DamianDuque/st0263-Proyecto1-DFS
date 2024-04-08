@@ -81,16 +81,20 @@ class FileServicer(servicer.NameNodeServiceServicer):
         
         if filename in indexTable.keys() and i == 0:
           if operation_type == "Append":
-            print("INDEXTRABLE:", self.__indexTable._IndexTable__indexTable)
-            print("CHUNK LIST:", self.__indexTable._IndexTable__indexTable[filename])
-            lastChunk = self.__indexTable._IndexTable__indexTable[filename][0]
-            print(lastChunk.__dict__)
-            lastChunk = self.__indexTable._IndexTable__indexTable[filename][1]
-            print(lastChunk.__dict__)
+            # print("INDEXTRABLE:", self.__indexTable._IndexTable__indexTable)
+            # print("CHUNK LIST:", self.__indexTable._IndexTable__indexTable[filename])
+            # lastChunk = self.__indexTable._IndexTable__indexTable[filename][0]
+            # print(lastChunk.__dict__)
+            # lastChunk = self.__indexTable._IndexTable__indexTable[filename][1]
+            # print(lastChunk.__dict__)
             lastChunk = self.__indexTable._IndexTable__indexTable[filename][-1]
-            print(lastChunk.__dict__)
-            readfrom = randint(0,len(lastChunk.locations))
-            yield CreateRsp(datanode_list=DatanodeList(localization=lastChunk.locations[1]))
+            #print("LAST_CHUNK DICT",lastChunk.__dict__)
+            # print(lastChunk.__dict__)
+
+            for datanode in availableDatanodes:
+              if datanode.uid in lastChunk.locations:
+                yield CreateRsp(datanode_list=DatanodeList(localization=datanode.location))
+            
             continue
           elif operation_type == "Create":
             yield CreateRsp(warning_message = WarningMessage( message= "File already stored in DFS system. If you are certain it is a new file, please rename it. Otherwise, if you want to add new information to an existing file, please store it in a separate file and upload it using the 'Append' method."))
