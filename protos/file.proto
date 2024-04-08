@@ -87,5 +87,7 @@ message LeaderFollowersReq {
 }
 
 message follower_info {
-  string follower_info = 1;
+  string follower_id = 1;
+  string follower_location = 2;
+  
 }

@@ -15,7 +15,7 @@ def run_ping(client:Client):
 def run_initial_report(report:Reports,directory):
   report.initial_report(directory=directory)
     
-load_dotenv("datanode/.env")
+load_dotenv("datanode2/.env")
 def initialize()->tuple[int, int, int, int, str, str, str, str]:
     address = str(os.getenv("SERVER_HOST"))
     port = str(os.getenv("SERVER_PORT"))

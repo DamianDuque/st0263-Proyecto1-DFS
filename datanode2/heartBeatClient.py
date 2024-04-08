@@ -5,7 +5,7 @@ import logging
 import os
 import grpc
 from dotenv import load_dotenv
-load_dotenv("datanode/.env")
+load_dotenv("datanode2/.env")
 logger = logging.getLogger("datanode-client")
 class Client:
     def __init__(self, datanodeId, cluster_id, datanodeIP, datanodePort, nameNodeIP, nameNodePort, ttl, is_leader, dotenv_path):

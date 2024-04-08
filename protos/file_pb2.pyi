@@ -119,7 +119,9 @@ class LeaderFollowersReq(_message.Message):
     def __init__(self, leader_id: _Optional[str] = ..., cluster_id: _Optional[int] = ...) -> None: ...
 
 class follower_info(_message.Message):
-    __slots__ = ("follower_info",)
-    FOLLOWER_INFO_FIELD_NUMBER: _ClassVar[int]
-    follower_info: str
-    def __init__(self, follower_info: _Optional[str] = ...) -> None: ...
+    __slots__ = ("follower_id", "follower_location")
+    FOLLOWER_ID_FIELD_NUMBER: _ClassVar[int]
+    FOLLOWER_LOCATION_FIELD_NUMBER: _ClassVar[int]
+    follower_id: str
+    follower_location: str
+    def __init__(self, follower_id: _Optional[str] = ..., follower_location: _Optional[str] = ...) -> None: ...
