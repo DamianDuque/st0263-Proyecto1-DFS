@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 load_dotenv("datanode/.env")
 logger = logging.getLogger("datanode-client")
 class Client:
-    def __init__(self, datanodeId, cluster_id, datanodeIP, datanodePort, nameNodeIP, nameNodePort, ttl, is_leader):
+    def __init__(self, datanodeId, cluster_id, datanodeIP, datanodePort, nameNodeIP, nameNodePort, ttl, is_leader, dotenv_path):
         self.__my_id = datanodeId
         self.__my_cluster=cluster_id
         self.__my_ip = datanodeIP
@@ -17,6 +17,7 @@ class Client:
         self.__namenode_port=nameNodePort
         self.__ttl=ttl
         self.__is_leader=False
+        self.__dotenv_path = dotenv_path
 
     def _create_name_node_client(self, host:int, port:int):
         socket="{}:{}".format(host, port)
@@ -28,11 +29,9 @@ class Client:
         datanode_id_value = datanode_id
         cluster_id_variable = 'CLUSTER_ID'
         cluster_id_value = cluster_id
-        is_leader_variable = 'IS_LEADER'
-        is_leader_value = str(is_leader)
 
         # Read the contents of the .env file
-        with open('datanode/.env', 'r') as f:
+        with open(self.__dotenv_path, 'r') as f:
             lines = f.readlines()
 
         # Update the line with the new value
@@ -42,12 +41,9 @@ class Client:
                 continue
             elif line.startswith(cluster_id_variable):
                 lines[i] = f'{cluster_id_variable}={cluster_id_value}\n'
-                continue
-            elif line.startswith(is_leader_variable):
-                lines[i] = f'{is_leader_variable}={is_leader_value}\n'
                 break
         # Write the updated contents back to the .env file
-        with open('datanode/.env', 'w') as f:
+        with open(self.__dotenv_path,'w') as f:
             f.writelines(lines)
 
         
@@ -71,10 +67,8 @@ class Client:
                 self.__my_cluster = cluster_id
                 self.__is_leader = is_leader
                 if n == 1:
+                    print("LEAVING FIRST PING")
                     return self
                 time.sleep(self.__ttl)
         except grpc.RpcError as e:
             logger.error("gRPC error: {}".format(e.details()))
-        
-
-

@@ -1,12 +1,14 @@
 import time
 
 class Datanode:
-    def __init__(self,uid:str,location:str,isLeader:bool,last_heart_beat:time):
+    def __init__(self,uid:str,cluster_id:int,location:str,isLeader:bool,last_heart_beat:time):
         self.uid = uid
+        self.cluster_id = cluster_id
         self.is_alive= True
-        self.is_leader= isLeader   
+        self.is_leader= isLeader
         self.location=location
         self.last_heart_beat=last_heart_beat
+        
 
     def set_alive(self):
         time_difference = time.time() - self.last_heart_beat

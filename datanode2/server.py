@@ -7,6 +7,7 @@ import time
 import grpc
 import sys
 from reports import Reports
+from replication import Replication
 
 current_dir = os.path.dirname(os.path.abspath(__file__))
 parent_dir = os.path.dirname(current_dir)
@@ -24,9 +25,14 @@ logger = logging.getLogger("datanode")
 class FileServicer(FileServicer):
   _PIECE_SIZE_IN_BYTES = 1024 * 1024 # 1MB
   
-  def __init__(self, files_directory, reports):
+  def __init__(self, files_directory, reports, namenode_ip, namenode_port, datanode_id, datanode_cluster, is_leader):
     self.__files_directory = files_directory
     self.__reportclass = reports
+    self.__namenode_ip = namenode_ip
+    self.__namenode_port = namenode_port
+    self.__datanode_id = datanode_id
+    self.__datanode_cluster = datanode_cluster
+    self.__is_leader = is_leader
 
   
   def read(self, request, context):
@@ -81,6 +87,9 @@ class FileServicer(FileServicer):
           self.__reportclass.report_partition(file_name, file_partition_name)
           logger.info("Succesfully reported {partition} partition from file: {file_name}".format(file_name=file_name,partition=file_partition_name))
           
+          if self.__is_leader:
+            replicate = Replication(nameNodeIP=self.__namenode_ip, nameNodePort=self.__namenode_port)
+            replicate.followers(self.__datanode_id, self.__datanode_cluster,directory,file_name,file_partition_name)
           
           return WriteRsp()
         except Exception as e:
@@ -95,15 +104,20 @@ class FileServicer(FileServicer):
 class DatanodeServer():
   _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
-  def __init__(self, ip_address, port, max_workers, files_directory, reports):
+  def __init__(self, ip_address, port, max_workers, files_directory, reports, namenode_ip, namenode_port, datanode_id, datanode_cluster, is_leader):
         
     self.__ip_address = ip_address
     self.__port = port
     self.__max_workers = max_workers
     self.__files_directory = files_directory
     self.__reportc = reports
+    self.__namenode_ip = namenode_ip
+    self.__namenode_port =  namenode_port
     self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
-    add_FileServicer_to_server(FileServicer(self.__files_directory, self.__reportc), self.__server)
+    self.__datanode_id = datanode_id
+    self.__datanode_cluster = datanode_cluster
+    self.__is_leader = is_leader
+    add_FileServicer_to_server(FileServicer(self.__files_directory, self.__reportc,self.__namenode_ip, self.__namenode_port, self.__datanode_id, self.__datanode_cluster, self.__is_leader), self.__server)
     self.__server.add_insecure_port(str(self.__ip_address) + ":" + str(self.__port))
     logger.info("created datanode instance " + str(self))
    

@@ -16,7 +16,7 @@ parent_dir = os.path.dirname(current_dir)
 sys.path.append(parent_dir)
 
 from protos import file_pb2_grpc as servicer
-from protos.file_pb2 import DatanodeList,Empty,DirectoryContent, CreateRsp, WarningMessage, HeartBeatRsp
+from protos.file_pb2 import DatanodeList,Empty,DirectoryContent, CreateRsp, WarningMessage, HeartBeatRsp, follower_info
 
 logger = logging.getLogger(__name__)
 
@@ -35,9 +35,16 @@ class FileServicer(servicer.NameNodeServiceServicer):
   
   def get_followers(self, request, context):
     followers = self.__dataNodesList.get_followers()
-    print(followers)
-    pass
-  
+    if followers:
+      for folwer in followers:
+        if folwer.cluster_id == request.cluster_id:
+          yield follower_info(follower_id=folwer.uid, follower_location=folwer.location)
+
+
+
+
+
+      
   def create(self, request, context):
     filename= request.filename
     chunks_number= request.chunks_number
@@ -120,7 +127,7 @@ class FileServicer(servicer.NameNodeServiceServicer):
     
     datanodeSocket= request.socket
     currentTime= time.time()
-    dataNodeToSave= Datanode(uid=datanodeId,location=datanodeSocket,isLeader=None,last_heart_beat=currentTime)
+    
     index=0
     #print(index,len(self.__cluster_list),self.__cluster_assign_count)
     #Assign cluster to datanode incoming
@@ -132,6 +139,7 @@ class FileServicer(servicer.NameNodeServiceServicer):
       index= clusterId
     print("INDEX OF CLUSTER ",index)
     cluster:Cluster=self.__cluster_list[index]
+    dataNodeToSave= Datanode(uid=datanodeId,cluster_id=index,location=datanodeSocket,isLeader=None,last_heart_beat=currentTime)
     is_leader=cluster.add_datanode(dataNodeToSave)
     #for cosa in self.__cluster_list:
     #  cosa.print()
