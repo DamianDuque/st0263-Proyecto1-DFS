@@ -4,4 +4,6 @@ class Chunk:
     self.name = name
     self.locations = []
   def add_location(self,datanode_id: str):
-    self.locations.append(datanode_id)
+    if datanode_id not in self.locations:
+      print("ENTERED ADD LOCATION WITH THIS ID:", datanode_id)
+      self.locations.append(datanode_id)
