@@ -30,13 +30,13 @@ class IndexTable:
         if existingChunk.name==part_name:
           existingChunk.add_location(datanode_id)
         elif part_name not in chunkNamesList:
-          chunk = Chunk(name=part_name,datanodesInSystem=self.datanodeListInSystem)
+          chunk = Chunk(name=part_name)
           chunk.add_location(datanode_id)
           self.__indexTable[filename].append(chunk)
         
       self.logger.info("Updated index table")
     else:
-      chunk= Chunk(name=part_name,datanodesInSystem=self.datanodeListInSystem)
+      chunk= Chunk(name=part_name)
       chunk.add_location(datanode_id) 
       self.__indexTable[filename] = [chunk]
       self.logger.info("Updated index table")

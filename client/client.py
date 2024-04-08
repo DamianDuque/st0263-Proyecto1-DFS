@@ -36,10 +36,10 @@ class Client:
      try:
       response_stream = namenodeStub.open(req)
       for response in response_stream:
-         localization="{}".format(response.datanode_list.localization)
-         chunkname="{}".format(response.datanode_list.chunkname)
-         #print(localization, chunkname)
-         self.read(socket=localization,file_name=file_name,chunk_name=chunkname)
+        print(response)
+        localization=response.localization
+        chunkname=response.chunkname
+        self.read(socket=localization,file_name=file_name,chunk_name=chunkname)
       
       unificator.unificator(split_dir=self.__files_directory, filename = file_name)
          
