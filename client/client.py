@@ -49,7 +49,7 @@ class Client:
     
   def read(self,socket,file_name,chunk_name):
     
-    try:
+    #try:
       datanodeStub= self._create_datanode_client(socket=socket)
       logger.info("downloading chunk {chunk} from file:{file_name} in socket: {socket}".format(file_name=file_name,chunk=chunk_name,socket=socket))
       req= ReadFileReq(filename=file_name,chunkname=chunk_name)
@@ -57,8 +57,8 @@ class Client:
       response_bytes = datanodeStub.read(req)
       self.__saving_chunk(response_bytes, chunk_name, file_name)
       logger.info("succesfully downloaded file: {file_name} from socket: {socket}.".format(file_name=file_name,chunk=chunk_name,socket=socket))
-    except grpc.RpcError as e:
-        logger.error("gRPC error: {}".format(e.details()))
+    #except grpc.RpcError as e:
+        #logger.error("gRPC error: {}".format(e.details()))
     
 
   def __saving_chunk(self, response_bytes, out_file_name, out_file_dir):
@@ -137,7 +137,7 @@ class Client:
 
   def create_appends(self,file_name,appends_dir):
     
-    try:
+    #try:
       namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
       chunksList= os.listdir(appends_dir)
       chunksNumber=len(chunksList)
@@ -150,27 +150,28 @@ class Client:
          part_dir = os.path.join(appends_dir,chunkName)
          self.__uploadToNameNode(socket=localization,filename=file_name,chunk_name=chunkName, pathpart=part_dir)
          chunkIndex+=1
-    except grpc.RpcError as e:
-      logger.error("gRPC error: {}".format(e.details()))    
-    except Exception as e:
-      logger.error("internal error: {}".format(e))
+    #except grpc.RpcError as e:
+    #  logger.error("gRPC error: {}".format(e.details()))    
+    #except Exception as e:
+    #  logger.error("internal error: {}".format(e))
 
 
 
   def append(self,file_name, file_name_dfs):
-      namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
-      logger.info("calling namenodeserver...")
-      req= FileOpenReq(filename=file_name_dfs)
-      try:
+        namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
+        logger.info("calling namenodeserver...")
+        req= FileOpenReq(filename=file_name_dfs)
+      #try:
         response_stream = namenodeStub.open(req)
         for response in response_stream:
-          localization="{}".format(response.datanode_list.localization)
-          chunkname="{}".format(response.datanode_list.chunkname)
+          localization="{}".format(response.localization)
+          chunkname="{}".format(response.chunkname)
           last_response = (localization, chunkname)
 
         if last_response is not None:
         # Call the read function only once using information from the last response
           self.read(socket=last_response[0], file_name=file_name_dfs, chunk_name=last_response[1])
+          #self.read(socket=localization,file_name=file_name_dfs,chunk_name=chunkname)
 
         donwloaded_chunk_path = self.__files_directory+"/"+file_name_dfs
         re_split_path = self.__files_directory+"/"+"re-split"
@@ -184,7 +185,7 @@ class Client:
         directorio_destino = f"{re_split_path}/{file_name}"
         self.create_appends(file_name_dfs, directorio_destino)
                
-      except grpc.RpcError as e:
-          logger.error("gRPC error: {}".format(e.details()))
-          return    
+      # grpc.RpcError as e:
+      #    logger.error("gRPC error: {}".format(e.details()))
+      #    return    
       
