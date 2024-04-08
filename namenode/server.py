@@ -181,13 +181,15 @@ class FileServicer(servicer.NameNodeServiceServicer):
   
   def listin(self, request, context):
     logger.info("Received req from client for updated index list")
-    print(self.__indexTable)
-    if len(self.__indexTable.items())<1:
+    #print("Index",self.__indexTable.__dict__)
+    print("Index table",self.__indexTable._IndexTable__indexTable)
+    if len(self.__indexTable._IndexTable__indexTable.keys())<1:
       yield DirectoryContent()
-    for key, value in self.__indexTable.items():
-      print(key)
+    #print(self.__indexTable._IndexTable__indexTable.keys())
+    for key in self.__indexTable._IndexTable__indexTable:
       yield DirectoryContent(name=key) 
     return 
+ 
   def check_datanodes_are_alive(self):
     pass
   

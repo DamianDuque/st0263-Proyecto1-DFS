@@ -100,16 +100,16 @@ class Client:
   
 
   def list_index(self):
-    try:
+    #try:
       namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
       req= Empty()
       response_stream = namenodeStub.listin(req)
       for content in response_stream:
          print(f"- {content.name}")
-    except grpc.RpcError as e:
-      logger.error("gRPC error: {}".format(e.details()))    
-    except Exception as e:
-      logger.error("internal error: {}".format(e))
+    #except grpc.RpcError as e:
+    #  logger.error("gRPC error: {}".format(e.details()))    
+    #except Exception as e:
+    #  logger.error("internal error: {}".format(e))
 
 
   def __uploadToNameNode(self,socket,filename,chunk_name, pathpart=None):
