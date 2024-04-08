@@ -109,3 +109,17 @@ class DirectoryContent(_message.Message):
     NAME_FIELD_NUMBER: _ClassVar[int]
     name: str
     def __init__(self, name: _Optional[str] = ...) -> None: ...
+
+class LeaderFollowersReq(_message.Message):
+    __slots__ = ("leader_id", "cluster_id")
+    LEADER_ID_FIELD_NUMBER: _ClassVar[int]
+    CLUSTER_ID_FIELD_NUMBER: _ClassVar[int]
+    leader_id: str
+    cluster_id: int
+    def __init__(self, leader_id: _Optional[str] = ..., cluster_id: _Optional[int] = ...) -> None: ...
+
+class follower_info(_message.Message):
+    __slots__ = ("follower_info",)
+    FOLLOWER_INFO_FIELD_NUMBER: _ClassVar[int]
+    follower_info: str
+    def __init__(self, follower_info: _Optional[str] = ...) -> None: ...

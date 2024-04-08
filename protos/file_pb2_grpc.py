@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from . import file_pb2 as file__pb2
+import file_pb2 as file__pb2
 
 
 class FileStub(object):
@@ -133,6 +133,11 @@ class NameNodeServiceStub(object):
                 request_serializer=file__pb2.Empty.SerializeToString,
                 response_deserializer=file__pb2.DirectoryContent.FromString,
                 )
+        self.get_followers = channel.unary_stream(
+                '/NameNodeService/get_followers',
+                request_serializer=file__pb2.LeaderFollowersReq.SerializeToString,
+                response_deserializer=file__pb2.follower_info.FromString,
+                )
 
 
 class NameNodeServiceServicer(object):
@@ -168,6 +173,12 @@ class NameNodeServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def get_followers(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_NameNodeServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -195,6 +206,11 @@ def add_NameNodeServiceServicer_to_server(servicer, server):
                     servicer.listin,
                     request_deserializer=file__pb2.Empty.FromString,
                     response_serializer=file__pb2.DirectoryContent.SerializeToString,
+            ),
+            'get_followers': grpc.unary_stream_rpc_method_handler(
+                    servicer.get_followers,
+                    request_deserializer=file__pb2.LeaderFollowersReq.FromString,
+                    response_serializer=file__pb2.follower_info.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -288,5 +304,22 @@ class NameNodeService(object):
         return grpc.experimental.unary_stream(request, target, '/NameNodeService/listin',
             file__pb2.Empty.SerializeToString,
             file__pb2.DirectoryContent.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def get_followers(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/NameNodeService/get_followers',
+            file__pb2.LeaderFollowersReq.SerializeToString,
+            file__pb2.follower_info.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

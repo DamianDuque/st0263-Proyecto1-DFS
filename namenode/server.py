@@ -33,6 +33,11 @@ class FileServicer(servicer.NameNodeServiceServicer):
   def getClusterList(self):
     return self.__cluster_list
   
+  def get_followers(self, request, context):
+    followers = self.__dataNodesList.get_followers()
+    print(followers)
+    pass
+  
   def create(self, request, context):
     filename= request.filename
     chunks_number= request.chunks_number
@@ -117,11 +122,10 @@ class FileServicer(servicer.NameNodeServiceServicer):
     currentTime= time.time()
     dataNodeToSave= Datanode(uid=datanodeId,location=datanodeSocket,isLeader=None,last_heart_beat=currentTime)
     index=0
-    print(index,len(self.__cluster_list),self.__cluster_assign_count)
+    #print(index,len(self.__cluster_list),self.__cluster_assign_count)
     #Assign cluster to datanode incoming
-    print
     if clusterId==-1:
-      print("New One")
+      print("NEW DATANODE SENT A PING")
       index= self.__cluster_assign_count%len(self.__cluster_list)
       self.__cluster_assign_count+=1
     else:
@@ -129,8 +133,8 @@ class FileServicer(servicer.NameNodeServiceServicer):
     print("INDEX OF CLUSTER ",index)
     cluster:Cluster=self.__cluster_list[index]
     is_leader=cluster.add_datanode(dataNodeToSave)
-    for cosa in self.__cluster_list:
-      cosa.print()
+    #for cosa in self.__cluster_list:
+    #  cosa.print()
     
     dataNodeToSave.is_leader=is_leader
     self.__dataNodesList.add_datanode(dataNodeToSave)

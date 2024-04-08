@@ -27,6 +27,7 @@ service NameNodeService {
     rpc heart_beat(DatanodeInfo) returns (HeartBeatRsp){}
     rpc report(ChunkReport) returns (Empty) {}
     rpc listin(Empty) returns (stream DirectoryContent) {}
+    rpc get_followers(LeaderFollowersReq) returns (stream follower_info) {}
 }
 
 message FileOpenReq {
@@ -78,4 +79,13 @@ message ChunkReport{
 
 message DirectoryContent {
   string name = 1;
+}
+
+message LeaderFollowersReq {
+  string leader_id = 1;
+  int64 cluster_id = 2;
+}
+
+message follower_info {
+  string follower_info = 1;
 }
