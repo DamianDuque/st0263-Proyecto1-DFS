@@ -24,10 +24,6 @@ def main():
     port,
     max_workers)
 
-  '''checkAliveness_thread = Thread(target=run_ping, args=(client,))
-  checkAliveness_thread.setDaemon(True)
-  checkAliveness_thread.start()'''
-
   server.start()
 
 if __name__ == "__main__":

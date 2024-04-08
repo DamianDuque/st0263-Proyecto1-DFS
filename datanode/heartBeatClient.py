@@ -60,7 +60,7 @@ class Client:
                 ping_resp = namenodeStub.heart_beat(req)
                 cluster_id, datanode_id, is_leader  = ping_resp.cluster_id,ping_resp.id_datanode,ping_resp.is_leader
                 logger.info("ping done, info received: cluster_id: {cluster}, datanode_id: {datanode}, is leader: {leader}".format(cluster = cluster_id, datanode = datanode_id, leader = is_leader))
-                req= DatanodeInfo(id=self.__my_id, socket=datanodeSocket,cluster=cluster_id)
+                req= DatanodeInfo(id=self.__my_id, socket=datanodeSocket, cluster=cluster_id)
                 self.updateenv(datanode_id,cluster_id)
                 if n == 1:
                     return datanode_id,cluster_id
