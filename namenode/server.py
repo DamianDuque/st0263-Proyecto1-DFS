@@ -9,6 +9,7 @@ from entities.index_table import IndexTable
 from entities.datanode_list import DatanodeListStructure,Datanode
 from entities.cluster import Cluster
 from uuid import uuid4
+from threading import Thread
 #probando
 # Get the current directory of the script
 current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -18,10 +19,12 @@ sys.path.append(parent_dir)
 from protos import file_pb2_grpc as servicer
 from protos.file_pb2 import DatanodeList,Empty,DirectoryContent, CreateRsp, WarningMessage, HeartBeatRsp
 
+
 logger = logging.getLogger(__name__)
 
 
-class FileServicer(servicer.NameNodeServiceServicer):
+class FileServicer(servicer.NameNodeServiceServicer):  
+  
   def __init__(self,dataNodesList:DatanodeListStructure,indexTable:IndexTable):
     self.__dataNodesList=dataNodesList
     self.__indexTable=indexTable
@@ -30,8 +33,24 @@ class FileServicer(servicer.NameNodeServiceServicer):
     self.__cluster_list=[Cluster(id = 0,datanodesInSystem=self.__dataNodesList),Cluster(id = 1,datanodesInSystem=self.__dataNodesList)]
     self.__used_ids = {}
 
-  def getClusterList(self):
-    return self.__cluster_list
+    checkAliveness_thread = Thread(target=self.checkAliveness, args=())
+    checkAliveness_thread.setDaemon(True)
+    checkAliveness_thread.start()
+
+  def checkAliveness(self):
+    while True:
+      for datanode in self.__dataNodesList.datanodes.values():
+        print(f'Objeto Datanode -- {datanode}')
+        is_dead_leader = datanode.set_alive()
+        print(is_dead_leader)
+        if is_dead_leader:
+          print("IS DEAD LEADERRRR")
+          for cluster in self.__cluster_list:
+            if datanode.uid in cluster.datanode_ids_List:
+              print("ENTRAAA A CHOOSE")
+              datanode.is_leader = False
+              cluster.choose_new_leader()
+      time.sleep(5)
   
   def get_followers(self, request, context):
     followers = self.__dataNodesList.get_followers()
@@ -76,7 +95,7 @@ class FileServicer(servicer.NameNodeServiceServicer):
         yield CreateRsp(datanode_list= DatanodeList())
         return
 
-  def open(self, request, context):
+  def open(self, request, context):  
     try:    
         filename= request.filename
         chunk_list= self.__indexTable.get_all_chunk_data_from_name(filename=filename)
@@ -110,7 +129,6 @@ class FileServicer(servicer.NameNodeServiceServicer):
   def heart_beat(self, request, context):
     datanodeId=request.id
     clusterId=request.cluster
-    print("CLUSTER ACTUAL ",clusterId)
     if datanodeId == "":
       while True:
         datanodeId = str(uuid4())[:8]
@@ -122,19 +140,15 @@ class FileServicer(servicer.NameNodeServiceServicer):
     currentTime= time.time()
     dataNodeToSave= Datanode(uid=datanodeId,location=datanodeSocket,isLeader=None,last_heart_beat=currentTime)
     index=0
-    #print(index,len(self.__cluster_list),self.__cluster_assign_count)
     #Assign cluster to datanode incoming
     if clusterId==-1:
-      print("NEW DATANODE SENT A PING")
       index= self.__cluster_assign_count%len(self.__cluster_list)
       self.__cluster_assign_count+=1
     else:
       index= clusterId
-    print("INDEX OF CLUSTER ",index)
     cluster:Cluster=self.__cluster_list[index]
     is_leader=cluster.add_datanode(dataNodeToSave)
-    #for cosa in self.__cluster_list:
-    #  cosa.print()
+
     
     dataNodeToSave.is_leader=is_leader
     self.__dataNodesList.add_datanode(dataNodeToSave)

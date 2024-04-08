@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import file_pb2 as file__pb2
+from . import file_pb2 as file__pb2
 
 
 class FileStub(object):

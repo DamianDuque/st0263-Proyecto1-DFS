@@ -1,4 +1,5 @@
 import time
+from colorama import Fore, Back, Style
 
 class Datanode:
     def __init__(self,uid:str,location:str,isLeader:bool,last_heart_beat:time):
@@ -10,10 +11,21 @@ class Datanode:
 
     def set_alive(self):
         time_difference = time.time() - self.last_heart_beat
-        self.is_alive = time_difference <= 80
+        self.is_alive = time_difference <= 6
+        is_leader = self.get_is_leader()
+        print(f'IS LEADER -- {is_leader}')
+        if not self.is_alive:
+            print(Fore.RED)
+            print(f'Datanode {self.uid} -- Murió')
+            print(Style.RESET_ALL)
+        else:
+            print(Fore.GREEN)
+            print(f'Datanode {self.uid} -- Vive')
+            print(Style.RESET_ALL)
+        return is_leader and not self.is_alive
 
     def get_is_leader(self):
-        return self.is_leader()
+        return self.is_leader
 
     def print_datanode(self):
         print(f'id {self.uid},location{self.location}, is alive? {self.is_alive}')
@@ -21,6 +33,9 @@ class Datanode:
 class DatanodeListStructure:
     def __init__(self):
         self.datanodes = {}
+
+    def set_is_leader(self, uid: str, is_leader: bool):
+        self.datanodes[uid].is_leader = is_leader
 
     def add_datanode(self, datanode: Datanode):    
         self.datanodes[datanode.uid] = datanode
