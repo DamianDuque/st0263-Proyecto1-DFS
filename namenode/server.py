@@ -105,32 +105,32 @@ class FileServicer(servicer.NameNodeServiceServicer):
   def open(self, request, context):  
     try:    
         filename= request.filename
+        
         chunk_list= self.__indexTable.get_all_chunk_data_from_name(filename=filename)
+        print(chunk_list)
         if len(chunk_list) == 0:
-          yield CreateRsp( datanode_list= DatanodeList())
+          yield DatanodeList()
         else:
           for chunk in chunk_list:
-            localizations_available:DatanodeListStructure=chunk.locations.get_alive_datanodes()
+            localizations_available= [datanode.location for datanode in self.__dataNodesList.get_alive_datanodes() if  datanode.uid in chunk.locations]
             print(localizations_available)
             random_index = random.randint(0, len(localizations_available)-1)
-            datanode:Datanode=localizations_available[random_index]
-            location=datanode.location
+            location=localizations_available[random_index]
             name= chunk.name
-            return DatanodeList(localization=location,chunkname=name)
+            print("ENTRAaaaaaa",chunk.name)
+            yield DatanodeList(localization=location,chunkname=name)
           
     except KeyError as e:
        # Archivo no existe, no encuentra la llave
        logger.error("Error filename doesn't exist {}".format(e))
        context.set_code(grpc.StatusCode.NOT_FOUND)
        context.set_details("Error filename doesn't exist")
-       yield CreateRsp(datanode_list= DatanodeList())
        return
     except Exception as e:
         logger.error("Error while sending locations: {}".format(e))
         # Manejar cualquier otro error que pueda ocurrir durante la lectura del archivo
         context.set_code(grpc.StatusCode.INTERNAL)
         context.set_details("Error while sending locations")
-        yield CreateRsp(datanode_list = DatanodeList())
         return
   
   def heart_beat(self, request, context):

@@ -1,5 +1,4 @@
 import time
-from colorama import Fore, Back, Style
 
 class Datanode:
     def __init__(self,uid:str,cluster_id:int,location:str,isLeader:bool,last_heart_beat:time):
@@ -17,13 +16,9 @@ class Datanode:
         is_leader = self.get_is_leader()
         print(f'IS LEADER -- {is_leader}')
         if not self.is_alive:
-            print(Fore.RED)
             print(f'Datanode {self.uid} -- Murió')
-            print(Style.RESET_ALL)
         else:
-            print(Fore.GREEN)
             print(f'Datanode {self.uid} -- Vive')
-            print(Style.RESET_ALL)
         return is_leader and not self.is_alive
 
     def get_is_leader(self):
