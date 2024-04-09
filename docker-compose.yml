@@ -1,0 +1,19 @@
+version: "3.8"
+services:
+  namenode:
+    build:
+      context: ./namenode
+    command: python main.py
+    env_file:
+      - namenode/.env
+    expose:
+      - 8000
+    ports:
+      - 8000:8000
+    volumes:
+      - ./namenode:/app
+    networks:
+      - proyecto-1
+
+networks:
+  proyecto-1:
