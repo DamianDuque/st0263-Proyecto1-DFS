@@ -116,12 +116,12 @@ class NameNodeServiceStub(object):
         self.create = channel.unary_stream(
                 '/NameNodeService/create',
                 request_serializer=file__pb2.FileCreateReq.SerializeToString,
-                response_deserializer=file__pb2.DatanodeList.FromString,
+                response_deserializer=file__pb2.CreateRsp.FromString,
                 )
-        self.ping = channel.unary_unary(
-                '/NameNodeService/ping',
+        self.heart_beat = channel.unary_unary(
+                '/NameNodeService/heart_beat',
                 request_serializer=file__pb2.DatanodeInfo.SerializeToString,
-                response_deserializer=file__pb2.Empty.FromString,
+                response_deserializer=file__pb2.HeartBeatRsp.FromString,
                 )
         self.report = channel.unary_unary(
                 '/NameNodeService/report',
@@ -132,6 +132,11 @@ class NameNodeServiceStub(object):
                 '/NameNodeService/listin',
                 request_serializer=file__pb2.Empty.SerializeToString,
                 response_deserializer=file__pb2.DirectoryContent.FromString,
+                )
+        self.get_followers = channel.unary_stream(
+                '/NameNodeService/get_followers',
+                request_serializer=file__pb2.LeaderFollowersReq.SerializeToString,
+                response_deserializer=file__pb2.follower_info.FromString,
                 )
 
 
@@ -150,7 +155,7 @@ class NameNodeServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def ping(self, request, context):
+    def heart_beat(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -168,6 +173,12 @@ class NameNodeServiceServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def get_followers(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
 
 def add_NameNodeServiceServicer_to_server(servicer, server):
     rpc_method_handlers = {
@@ -179,12 +190,12 @@ def add_NameNodeServiceServicer_to_server(servicer, server):
             'create': grpc.unary_stream_rpc_method_handler(
                     servicer.create,
                     request_deserializer=file__pb2.FileCreateReq.FromString,
-                    response_serializer=file__pb2.DatanodeList.SerializeToString,
+                    response_serializer=file__pb2.CreateRsp.SerializeToString,
             ),
-            'ping': grpc.unary_unary_rpc_method_handler(
-                    servicer.ping,
+            'heart_beat': grpc.unary_unary_rpc_method_handler(
+                    servicer.heart_beat,
                     request_deserializer=file__pb2.DatanodeInfo.FromString,
-                    response_serializer=file__pb2.Empty.SerializeToString,
+                    response_serializer=file__pb2.HeartBeatRsp.SerializeToString,
             ),
             'report': grpc.unary_unary_rpc_method_handler(
                     servicer.report,
@@ -195,6 +206,11 @@ def add_NameNodeServiceServicer_to_server(servicer, server):
                     servicer.listin,
                     request_deserializer=file__pb2.Empty.FromString,
                     response_serializer=file__pb2.DirectoryContent.SerializeToString,
+            ),
+            'get_followers': grpc.unary_stream_rpc_method_handler(
+                    servicer.get_followers,
+                    request_deserializer=file__pb2.LeaderFollowersReq.FromString,
+                    response_serializer=file__pb2.follower_info.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -236,12 +252,12 @@ class NameNodeService(object):
             metadata=None):
         return grpc.experimental.unary_stream(request, target, '/NameNodeService/create',
             file__pb2.FileCreateReq.SerializeToString,
-            file__pb2.DatanodeList.FromString,
+            file__pb2.CreateRsp.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def ping(request,
+    def heart_beat(request,
             target,
             options=(),
             channel_credentials=None,
@@ -251,9 +267,9 @@ class NameNodeService(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/NameNodeService/ping',
+        return grpc.experimental.unary_unary(request, target, '/NameNodeService/heart_beat',
             file__pb2.DatanodeInfo.SerializeToString,
-            file__pb2.Empty.FromString,
+            file__pb2.HeartBeatRsp.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -288,5 +304,22 @@ class NameNodeService(object):
         return grpc.experimental.unary_stream(request, target, '/NameNodeService/listin',
             file__pb2.Empty.SerializeToString,
             file__pb2.DirectoryContent.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def get_followers(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_stream(request, target, '/NameNodeService/get_followers',
+            file__pb2.LeaderFollowersReq.SerializeToString,
+            file__pb2.follower_info.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

@@ -23,10 +23,11 @@ message WriteRsp {
 
 service NameNodeService {
     rpc open(FileOpenReq) returns (stream DatanodeList) {}
-    rpc create(FileCreateReq) returns (stream DatanodeList){}
-    rpc ping(DatanodeInfo) returns (Empty){}
+    rpc create(FileCreateReq) returns (stream CreateRsp){}
+    rpc heart_beat(DatanodeInfo) returns (HeartBeatRsp){}
     rpc report(ChunkReport) returns (Empty) {}
     rpc listin(Empty) returns (stream DirectoryContent) {}
+    rpc get_followers(LeaderFollowersReq) returns (stream follower_info) {}
 }
 
 message FileOpenReq {
@@ -35,6 +36,13 @@ message FileOpenReq {
 message FileCreateReq{
     string filename = 1;
     int64 chunks_number = 2;
+    string operation = 3;
+}
+
+message HeartBeatRsp{
+    int64 cluster_id = 1;
+    string id_datanode = 2;
+    bool is_leader = 3;
 }
 
 message DatanodeList{
@@ -42,10 +50,25 @@ message DatanodeList{
     string chunkname= 2;
 
 }
+
+message WarningMessage{
+    string message = 1;
+}
+
+message CreateRsp {
+    oneof Response {
+        DatanodeList datanode_list = 1;
+        WarningMessage warning_message = 2;
+    }
+}
+
+
 message Empty{}
 
 message DatanodeInfo{
-  string socket = 1;
+  string id = 1;
+  string socket = 2;
+  int64 cluster = 3;
 }
 
 message ChunkReport{
@@ -56,4 +79,15 @@ message ChunkReport{
 
 message DirectoryContent {
   string name = 1;
+}
+
+message LeaderFollowersReq {
+  string leader_id = 1;
+  int64 cluster_id = 2;
+}
+
+message follower_info {
+  string follower_id = 1;
+  string follower_location = 2;
+  
 }
