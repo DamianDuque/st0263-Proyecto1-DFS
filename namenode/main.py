@@ -2,8 +2,6 @@ from server import NameNodeServer
 import os
 import logging
 from dotenv import load_dotenv
-from threading import Thread
-from entities.datanode_list import Datanode, DatanodeListStructure
 
 
 load_dotenv("namenode/.env")
