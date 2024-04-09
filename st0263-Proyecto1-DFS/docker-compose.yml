@@ -1,0 +1,31 @@
+version: "3.8"
+services:
+  namenode:
+    build:
+      context: .
+      dockerfile: ./namenode/Dockerfile
+    command: python main.py
+    env_file:
+      - namenode/.env
+    expose:
+      - 80:80
+    ports:
+      - 8000:8000
+    volumes:
+      - ./namenode:/app
+      - ./protos:/app/protos  # Mount the protos directory into the container
+  datanode:
+    build:
+      context: .
+      dockerfile: ./datanode/Dockerfile
+    command: python main.py
+    env_file:
+      - datanode/.env
+    expose:
+      - 5000
+    ports:
+      - 5000:5000
+    volumes:
+      - ./datanode:/app
+      - ./protos:/app/protos 
+
