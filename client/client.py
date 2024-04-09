@@ -100,16 +100,16 @@ class Client:
   
 
   def list_index(self):
-    #try:
+    try:
       namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
       req= Empty()
       response_stream = namenodeStub.listin(req)
       for content in response_stream:
          print(f"- {content.name}")
-    #except grpc.RpcError as e:
-    #  logger.error("gRPC error: {}".format(e.details()))    
-    #except Exception as e:
-    #  logger.error("internal error: {}".format(e))
+    except grpc.RpcError as e:
+     logger.error("gRPC error: {}".format(e.details()))    
+    except Exception as e:
+     logger.error("internal error: {}".format(e))
 
 
   def __uploadToNameNode(self,socket,filename,chunk_name, pathpart=None):
@@ -137,7 +137,7 @@ class Client:
 
   def create_appends(self,file_name,appends_dir):
     
-    #try:
+    try:
       namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
       chunksList= os.listdir(appends_dir)
       chunksNumber=len(chunksList)
@@ -150,42 +150,36 @@ class Client:
          part_dir = os.path.join(appends_dir,chunkName)
          self.__uploadToNameNode(socket=localization,filename=file_name,chunk_name=chunkName, pathpart=part_dir)
          chunkIndex+=1
-    #except grpc.RpcError as e:
-    #  logger.error("gRPC error: {}".format(e.details()))    
-    #except Exception as e:
-    #  logger.error("internal error: {}".format(e))
+    except grpc.RpcError as e:
+     logger.error("gRPC error: {}".format(e.details()))    
+    except Exception as e:
+     logger.error("internal error: {}".format(e))
 
 
 
   def append(self,file_name, file_name_dfs):
-        namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
-        logger.info("calling namenodeserver...")
-        req= FileOpenReq(filename=file_name_dfs)
-      #try:
-        response_stream = namenodeStub.open(req)
-        for response in response_stream:
-          localization="{}".format(response.localization)
-          chunkname="{}".format(response.chunkname)
-          last_response = (localization, chunkname)
+    namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
+    logger.info("calling namenodeserver...")
+    req= FileOpenReq(filename=file_name_dfs)
+    try:
+      response_stream = namenodeStub.open(req)
+      for response in response_stream:
+        localization="{}".format(response.localization)
+        chunkname="{}".format(response.chunkname)
+        last_response = (localization, chunkname)
 
-        if last_response is not None:
-        # Call the read function only once using information from the last response
-          self.read(socket=last_response[0], file_name=file_name_dfs, chunk_name=last_response[1])
-          #self.read(socket=localization,file_name=file_name_dfs,chunk_name=chunkname)
+      if last_response is not None:
+      # Call the read function only once using information from the last response
+        self.read(socket=last_response[0], file_name=file_name_dfs, chunk_name=last_response[1])
 
-        donwloaded_chunk_path = self.__files_directory+"/"+file_name_dfs
-        re_split_path = self.__files_directory+"/"+"re-split"
-        #print("FILENAME", chunkname)
-        #print("IN_PATH", donwloaded_chunk_path)
-        #print("OUT_PATH", re_split_path)
-        #print("SECOND_FILENAME", file_name_dfs)
-        #print("SECOND_IN_PATH", self.__in_dir)
-        
-        splitter.hadoop_style_split(filename=chunkname,in_path=donwloaded_chunk_path,out_path=re_split_path, chunk_size= self._PIECE_SIZE_IN_BYTES, second_filename=file_name, second_in_path=self.__in_dir)
-        directorio_destino = f"{re_split_path}/{file_name}"
-        self.create_appends(file_name_dfs, directorio_destino)
+      donwloaded_chunk_path = self.__files_directory+"/"+file_name_dfs
+      re_split_path = self.__files_directory+"/"+"re-split"
+      
+      splitter.hadoop_style_split(filename=chunkname,in_path=donwloaded_chunk_path,out_path=re_split_path, chunk_size= self._PIECE_SIZE_IN_BYTES, second_filename=file_name, second_in_path=self.__in_dir)
+      directorio_destino = f"{re_split_path}/{file_name}"
+      self.create_appends(file_name_dfs, directorio_destino)
                
-      # grpc.RpcError as e:
-      #    logger.error("gRPC error: {}".format(e.details()))
-      #    return    
+    except grpc.RpcError as e:
+      logger.error("gRPC error: {}".format(e.details()))
+      return    
       
