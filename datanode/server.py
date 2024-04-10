@@ -104,7 +104,7 @@ class FileServicer(FileServicer):
 class DatanodeServer():
   _ONE_DAY_IN_SECONDS = 60 * 60 * 24
 
-  def __init__(self, ip_address, port, max_workers, files_directory, reports, namenode_ip, namenode_port, datanode_id, datanode_cluster, is_leader):
+  def __init__(self, ip_address, port, max_workers, files_directory, reports, namenode_ip, namenode_port, datanode_id, datanode_cluster, is_leader,private_address):
         
     self.__ip_address = ip_address
     self.__port = port
@@ -117,8 +117,9 @@ class DatanodeServer():
     self.__datanode_id = datanode_id
     self.__datanode_cluster = datanode_cluster
     self.__is_leader = is_leader
+    self.__private_address= private_address
     add_FileServicer_to_server(FileServicer(self.__files_directory, self.__reportc,self.__namenode_ip, self.__namenode_port, self.__datanode_id, self.__datanode_cluster, self.__is_leader), self.__server)
-    self.__server.add_insecure_port(str(self.__ip_address) + ":" + str(self.__port))
+    self.__server.add_insecure_port(str(self.__private_address) + ":" + str(self.__port))
     logger.info("created datanode instance " + str(self))
    
   def __str__(self):

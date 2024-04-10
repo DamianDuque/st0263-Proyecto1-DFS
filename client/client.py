@@ -39,6 +39,7 @@ class Client:
         print(response)
         localization=response.localization
         chunkname=response.chunkname
+        
         self.read(socket=localization,file_name=file_name,chunk_name=chunkname)
       
       unificator.unificator(split_dir=self.__files_directory, filename = file_name)
@@ -49,7 +50,7 @@ class Client:
     
   def read(self,socket,file_name,chunk_name):
     
-    #try:
+    try:
       datanodeStub= self._create_datanode_client(socket=socket)
       logger.info("downloading chunk {chunk} from file:{file_name} in socket: {socket}".format(file_name=file_name,chunk=chunk_name,socket=socket))
       req= ReadFileReq(filename=file_name,chunkname=chunk_name)
@@ -57,8 +58,8 @@ class Client:
       response_bytes = datanodeStub.read(req)
       self.__saving_chunk(response_bytes, chunk_name, file_name)
       logger.info("succesfully downloaded file: {file_name} from socket: {socket}.".format(file_name=file_name,chunk=chunk_name,socket=socket))
-    #except grpc.RpcError as e:
-        #logger.error("gRPC error: {}".format(e.details()))
+    except grpc.RpcError as e:
+        logger.error("gRPC error: {}".format(e.details()))
     
 
   def __saving_chunk(self, response_bytes, out_file_name, out_file_dir):

@@ -8,12 +8,14 @@ services:
     env_file:
       - namenode/.env
     expose:
-      - 80:80
+      - 8000
     ports:
-      - 8000:8000
+      - "8000:8000"
     volumes:
       - ./namenode:/app
-      - ./protos:/app/protos  # Mount the protos directory into the container
+      - ./protos:/app/protos
+    networks:
+      -  distributed_net  # Mount the protos directory into the container
   datanode:
     build:
       context: .
@@ -27,5 +29,8 @@ services:
       - 5000:5000
     volumes:
       - ./datanode:/app
-      - ./protos:/app/protos 
-
+      - ./protos:/app/protos
+    networks:
+      -  distributed_net
+networks:
+  distributed_net:

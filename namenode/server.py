@@ -11,11 +11,11 @@ from entities.cluster import Cluster
 from uuid import uuid4
 from threading import Thread
 from random import randint
-# #probando
-# # Get the current directory of the script
-# current_dir = os.path.dirname(os.path.abspath(__file__))
-# parent_dir = os.path.dirname(current_dir)
-# sys.path.append(parent_dir)
+#probando
+# Get the current directory of the script
+current_dir = os.path.dirname(os.path.abspath(__file__))
+parent_dir = os.path.dirname(current_dir)
+sys.path.append(parent_dir)
 
 from protos import file_pb2_grpc as servicer
 from protos.file_pb2 import DatanodeList,Empty,DirectoryContent, CreateRsp, WarningMessage, HeartBeatRsp, follower_info
@@ -130,7 +130,6 @@ class FileServicer(servicer.NameNodeServiceServicer):
             random_index = random.randint(0, len(localizations_available)-1)
             location=localizations_available[random_index]
             name= chunk.name
-            print("ENTRAaaaaaa",chunk.name)
             yield DatanodeList(localization=location,chunkname=name)
           
     except KeyError as e:

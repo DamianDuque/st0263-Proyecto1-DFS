@@ -15,9 +15,10 @@ def run_ping(client:Client):
 def run_initial_report(report:Reports,directory):
   report.initial_report(directory=directory)
     
-load_dotenv("datanode/.env")
+load_dotenv("./.env")
 def initialize()->tuple[int, int, int, int, str, str, str, str]:
     address = str(os.getenv("SERVER_HOST"))
+    private_address = str(os.getenv("SERVER_PRIVATE_HOST"))
     port = str(os.getenv("SERVER_PORT"))
     workers = int(os.getenv("SERVER_WORKERS"))
     directory = os.getenv("SERVER_DIRECTORY")
@@ -28,11 +29,12 @@ def initialize()->tuple[int, int, int, int, str, str, str, str]:
     cluster_id= os.getenv("CLUSTER_ID")
     is_leader = False
     dotenv_path = os.getenv("DOTENV_PATH")
-    return address, port, workers, directory, nameNodeIP, nameNodePort, ttl, datanode_id, cluster_id, is_leader, dotenv_path
+    
+    return address, port, workers, directory, nameNodeIP, nameNodePort, ttl, datanode_id, cluster_id, is_leader, dotenv_path, private_address
 def main(): 
   log_fmt = "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
   logging.basicConfig(level=logging.INFO, format=log_fmt)
-  ip_address, port, max_workers, files_directory,nameNodeIP,nameNodePort,ttl, datanode_id,cluster_id, is_leader, dotenv_path = initialize()
+  ip_address, port, max_workers, files_directory,nameNodeIP,nameNodePort,ttl, datanode_id,cluster_id, is_leader, dotenv_path, private_address = initialize()
   
   client = Client(
     datanode_id,
@@ -76,7 +78,8 @@ def main():
     nameNodePort,
     upclient._Client__my_id,
     upclient._Client__my_cluster,
-    upclient._Client__is_leader
+    upclient._Client__is_leader,
+    private_address
     )
 
   
