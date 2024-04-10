@@ -1,0 +1,17 @@
+version: "3.8"
+services:
+  namenode:
+    build:
+      context: .
+      dockerfile: ./namenode/Dockerfile
+    command: python main.py
+    env_file:
+      - namenode/.env
+    expose:
+      - 8000
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./namenode:/app
+      - ./protos:/app/protos
+
