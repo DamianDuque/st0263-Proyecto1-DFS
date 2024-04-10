@@ -1,4 +1,4 @@
-import time
+from threading import Thread
 import logging
 import grpc
 import os
@@ -36,7 +36,7 @@ class Replication:
       
             filePath = os.path.join(storedPath,chunk_name)
             try:
-
+                  
                   with open(filePath, "rb") as fh:
                         piece = fh.read(self._PIECE_SIZE_IN_BYTES)
                   if not piece:
@@ -60,16 +60,16 @@ class Replication:
                   namenodeStub= self._create_name_node_client(self.__namenode_ip,self.__namenode_port)## Revisar esta info
                   req = LeaderFollowersReq(leader_id=leader_id, cluster_id=cluster_id)
                   response_stream = namenodeStub.get_followers(req)
-                  
+                  threads= []
                   for response in response_stream:
                         #Actualizar a esta version--
                         fid="{}".format(response.follower_id)
                         flocation="{}".format(response.follower_location)
-                        #print("FOLLOWER INFO:")
-                        #print("FOLLOWER ID", fid)
-                        #print("FOLLOWER LOCATION", flocation)
-                        self.__uploadToNameNode(socket=flocation,storedPath=file_path,filename=file_name,chunk_name=chunk_name)
-
+                        thread = Thread(target=self.__uploadToNameNode, args=(flocation, file_path,file_name,chunk_name))
+                        thread.start()
+                        threads.append(thread)
+                  for thread in threads:
+                        thread.join()
             except grpc.RpcError as e:
                   logger.error("gRPC error: {}".format(e.details()))    
             except Exception as e:

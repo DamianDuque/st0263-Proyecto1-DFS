@@ -1,7 +1,6 @@
 import logging
 import os
-import time
-import json
+from threading import Thread
 from . import splitter
 from . import unificator
 
@@ -35,12 +34,16 @@ class Client:
      req= FileOpenReq(filename=file_name)
      try:
       response_stream = namenodeStub.open(req)
+      threads = []
       for response in response_stream:
         localization=response.localization
         chunkname=response.chunkname
-        
+        thread = Thread(target=self.read, args=(localization, file_name,chunkname,))
+        thread.start()
+        threads.append(thread)
         self.read(socket=localization,file_name=file_name,chunk_name=chunkname)
-      
+      for thread in threads:
+        thread.join()
       unificator.unificator(split_dir=self.__files_directory, filename = file_name)
          
      except grpc.RpcError as e:
@@ -86,13 +89,18 @@ class Client:
       response_stream = namenodeStub.create(req)
       
       chunkIndex=0
+      threads = []
       for response in response_stream:
          if response.HasField('warning_message'):
            raise Exception(response.warning_message.message)
          localization="{}".format(response.datanode_list.localization)
          chunkName=chunksList[chunkIndex]
-         self.__uploadToNameNode(socket=localization,filename=file_name,chunk_name=chunkName)
+         thread= Thread(target=self.__uploadToNameNode, args=(localization,file_name,chunkName,))
+         thread.start()
+         threads.append(thread)
          chunkIndex+=1
+      for thread in threads:
+        thread.join()
     except grpc.RpcError as e:
       logger.error("gRPC error: {}".format(e.details()))    
     except Exception as e:
@@ -144,12 +152,17 @@ class Client:
       req= FileCreateReq(filename=file_name,chunks_number=chunksNumber, operation="Append")
       response_stream = namenodeStub.create(req)
       chunkIndex=0
+      threads = []
       for response in response_stream:
          localization="{}".format(response.datanode_list.localization)
          chunkName=chunksList[chunkIndex]
          part_dir = os.path.join(appends_dir,chunkName)
-         self.__uploadToNameNode(socket=localization,filename=file_name,chunk_name=chunkName, pathpart=part_dir)
+         thread= Thread(target=self.__uploadToNameNode, args=(localization,file_name,chunkName,part_dir,))
+         thread.start()
+         threads.append(thread)
          chunkIndex+=1
+      for thread in threads:
+        thread.join()
     except grpc.RpcError as e:
      logger.error("gRPC error: {}".format(e.details()))    
     except Exception as e:
