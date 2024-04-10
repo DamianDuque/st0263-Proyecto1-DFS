@@ -1,5 +1,9 @@
 ## **Proyecto 1 -  Tópicos Especiales de Telemática** 
 
+# Video sustentación
+[![Video sustentacion](https://img.youtube.com/vi/xtq0iNkTtXY/0.jpg)](https://www.youtube.com/watch?v=xtq0iNkTtXY)
+
+
 **Integrantes:** 
 
 - Esteban Trujillo Carmona 
