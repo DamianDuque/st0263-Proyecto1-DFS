@@ -84,5 +84,5 @@ def hadoop_style_split(filename, in_path, out_path, chunk_size, second_filename=
 
 if __name__ == "__main__":
     filename = "Infografia.pdf"  # Nombre del archivo
-    chunk_size = 1024 * 1024  # Para bloques de 1MB
+    chunk_size = 1024 * 1024 * 128# Para bloques de 1MB
     hadoop_style_split(filename, chunk_size)

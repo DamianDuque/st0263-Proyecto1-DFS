@@ -21,7 +21,7 @@ class Replication:
         #self.__my_cluster=cluster
         self.__namenode_ip=nameNodeIP
         self.__namenode_port=nameNodePort
-        self._PIECE_SIZE_IN_BYTES = 1024 * 1024 # 1MB
+        self._PIECE_SIZE_IN_BYTES = 1024 * 1024 * 128 # 128MB
    
       def _create_name_node_client(self,host: int,port:int):
             socket="{}:{}".format(host,port)

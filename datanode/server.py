@@ -23,7 +23,7 @@ from protos.file_pb2_grpc import  FileServicer, add_FileServicer_to_server
 logger = logging.getLogger("datanode")
 
 class FileServicer(FileServicer):
-  _PIECE_SIZE_IN_BYTES = 1024 * 1024 # 1MB
+  _PIECE_SIZE_IN_BYTES = 1024 * 1024 * 128# 1MB
   
   def __init__(self, files_directory, reports, namenode_ip, namenode_port, datanode_id, datanode_cluster, is_leader):
     self.__files_directory = files_directory
@@ -113,7 +113,7 @@ class DatanodeServer():
     self.__reportc = reports
     self.__namenode_ip = namenode_ip
     self.__namenode_port =  namenode_port
-    self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=20))
+    self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=20), options=[('grpc.max_receive_message_length', 134217758),('grpc.max_send_message_length', 134217758)])
     self.__datanode_id = datanode_id
     self.__datanode_cluster = datanode_cluster
     self.__is_leader = is_leader

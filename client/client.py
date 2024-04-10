@@ -15,11 +15,11 @@ logger = logging.getLogger(__name__)
 class Client:
   def _create_name_node_client(self,host: int,port:int):
          socket="{}:{}".format(host,port)
-         channel: grpc.Channel = grpc.insecure_channel(socket)
+         channel: grpc.Channel = grpc.insecure_channel(socket, options=[('grpc.max_receive_message_length', 134217758),('grpc.max_send_message_length', 134217758)])
          return  NameNodeServiceStub(channel)
     
   def _create_datanode_client(self,socket:str):
-        channel: grpc.Channel = grpc.insecure_channel(socket)
+        channel: grpc.Channel = grpc.insecure_channel(socket, options=[('grpc.max_receive_message_length', 134217758),('grpc.max_send_message_length', 134217758)])
         return  FileStub(channel)
   
   def __init__(self, ip_address, port,root_dir,in_dir):
@@ -27,7 +27,7 @@ class Client:
     self.__port = port
     self.__files_directory=root_dir
     self.__in_dir=in_dir
-    self._PIECE_SIZE_IN_BYTES = 1024 * 1024 # 1MB
+    self._PIECE_SIZE_IN_BYTES = 1024 * 1024 * 128# 128MB
 
   def open(self,file_name):
      namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)

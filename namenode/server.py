@@ -211,7 +211,7 @@ class NameNodeServer():
     self.__ip_address = ip_address
     self.__port = port
     self.__max_workers = max_workers
-    self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers))
+    self.__server = grpc.server(futures.ThreadPoolExecutor(max_workers=20), options=[('grpc.max_receive_message_length', 134217758),('grpc.max_send_message_length', 134217758)])
     self.__datanodesList= DatanodeListStructure()
     self.__indexTable= IndexTable(logger, self.__datanodesList)
     servicer.add_NameNodeServiceServicer_to_server(FileServicer(self.__datanodesList,self.__indexTable),self.__server)
