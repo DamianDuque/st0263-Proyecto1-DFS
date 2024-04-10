@@ -208,12 +208,16 @@ Se tienen tres procesos o acciones que se realizan en el sistema de archivos, lo
 
 #### **Proceso de lectura:** _open_ 
 
-1. Un cliente se comunica con el namenode leader solicitando la lectura de determinado archivo indicando el nombre de archivo.
+1. Un cliente se comunica con el namenode solicitando la lectura de determinado archivo indicando el nombre de archivo.
 1. El namenode le envía al cliente la lista de ubicaciones de los datanodes que tienen los chunks que componen el archivo y el nombre de cada chunk con la localización.
 1. Con la información recibida, el cliente se dirige posteriormente a cada uno de los datanodes para solicitar el chunk respectivo que poseen.
 1. Los  datanodes  le  envían  respectivamente  los  chunks solicitados al cliente.
 1. El cliente, una vez tiene todos los chunks de determinado archivo que estaba buscando, pasa a recomponerlo, y posteriormente a leerlo.
 ####
+
+![image](https://github.com/DamianDuque/st0263-Proyecto1-DFS/assets/83479274/47c066d4-785c-45e8-8a96-a44f8a9ce54c)
+
+
 #### **Proceso de escritura:** _create_
 
 1. El cliente se comunica con el namenode leader para solicitarle la escritura en un determinado archivo. 
@@ -226,11 +230,14 @@ Se tienen tres procesos o acciones que se realizan en el sistema de archivos, lo
 1. Por cada chunk escrito dentro de un datanode el namenode recibe un reporte de que el chunk fue escrito con éxito en los followers. 
 1. El namenode actualiza su tabla de metadatos con los nuevos chunks ingresados.
 6. Una  vez  hechas  las actualizaciones en  la  tabla de  metadatos,  el namenode le envía a cada datanode un mensaje OK de confirmación.
+###
+![image](https://github.com/DamianDuque/st0263-Proyecto1-DFS/assets/83479274/f8265a57-5461-4e1d-9d0b-eac3177bc77e)
+
 
 ####
 #### **Proceso de inserción.** _append_
-1. El cliente se comunica con el namenode leader para solicitarle la inserción de un chunk a un archivo existente en el sistema. 
-1. El namenode leader le entrega al cliente la ubicación de los datanodes disponibles para inserción que serán líderes de sus clusters.
+1. El cliente se comunica con el namenode para solicitarle la inserción de un chunk a un archivo existente en el sistema. 
+1. El namenode le entrega al cliente la ubicación de los datanodes disponibles para inserción que serán líderes de sus clusters.
 1. El cliente se comunica con los datanodes líderes para crear en ellos el chunk que le corresponde.
 1. Por cada chunk escrito dentro de un datanode el namenode recibe un reporte de que el chunk fue escrito con éxito. 
 1. Con un reporte final el cliente confirma la escritura del chunk en el sistema. 
@@ -238,7 +245,21 @@ Se tienen tres procesos o acciones que se realizan en el sistema de archivos, lo
 1. El datanode leader se comunica con los datanodes followers de su cluster para replicar los chunks que acaba de escribir.
 1. Por cada chunk escrito dentro de un datanode el namenode recibe un reporte de que el chunk fue escrito con éxito. 
 6. Una  vez  se  hayan  insertado  todos  los  chunks  del  archivo  en  lo datanodes líderes, y sus réplicas en los datanodes followers, el namenode actualiza su tabla de metadatos con los nuevos chunks ingresados.
-6. Una  vez  hechas  las actualizaciones en  la  tabla de  metadatos,  el namenode leader le envía a cada datanode un mensaje OK de confirmación.
+6. Una  vez  hechas  las actualizaciones en  la  tabla de  metadatos,  el namenode le envía a cada datanode un mensaje OK de confirmación.
+####
+
+![image](https://github.com/DamianDuque/st0263-Proyecto1-DFS/assets/83479274/f6b1b8f9-7bd3-4281-9eb7-22856036c214)
+
+####
+
+#### **Proceso de listar archivos.** _ls_
+1. El cliente se comunica con el namenode para solicitarle listar los archivos que hay almacenados en el sistema. 
+1. El namenode le entrega los valores de la index table.
+1. El cliente hace display de los nombres de los archivos almacenados en el sistema.
+####
+
+![image](https://github.com/DamianDuque/st0263-Proyecto1-DFS/assets/83479274/bce16ce2-cb89-4881-b98d-744fdacd435e)
+
 
 
 ### **Especificaciones adicionales**
