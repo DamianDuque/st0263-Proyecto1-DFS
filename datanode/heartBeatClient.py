@@ -55,7 +55,6 @@ class Client:
         else:
             cluster_id=int(self.__my_cluster)
         req= DatanodeInfo(id=self.__my_id, socket=datanodeSocket,cluster=cluster_id)
-        print(self.__my_id)
         try:
             while True:
                 ping_resp = namenodeStub.heart_beat(req)
@@ -67,7 +66,6 @@ class Client:
                 self.__my_cluster = cluster_id
                 self.__is_leader = is_leader
                 if n == 1:
-                    print("LEAVING FIRST PING")
                     return self
                 time.sleep(self.__ttl)
         except grpc.RpcError as e:

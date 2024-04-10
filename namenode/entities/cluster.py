@@ -1,5 +1,7 @@
 from .datanode_list import Datanode,DatanodeListStructure
+import logging
 
+logger = logging.getLogger(__name__)
 class Cluster:
     def __init__(self, id,datanodesInSystem:DatanodeListStructure):
         self.cluster_id = id
@@ -20,12 +22,12 @@ class Cluster:
         return is_leader
     
     def choose_new_leader(self):
-        print(f'ID: {self.cluster_id} -- Leader: {self.leader_id}')
+        logger.info("ID: {cluster_id} -- Leader: {leader_id}".format(cluster_id=self.cluster_id,leader_id=self.leader_id))
         candidates = [candidate for candidate in self.datanodeListInSystem.get_alive_datanodes() if candidate.uid in self.datanode_ids_List]
-        print(f'Len Candi -- {len(candidates)}')
+        #print(f'Len Candi -- {len(candidates)}')
         if len(candidates) != 0:
             self.leader_id = candidates[0].uid
-            print(f'ID: {self.cluster_id} -- Leader CAMBIO: {self.leader_id}')
+            logger.info("ID: {cluster_id} -- Leader CAMBIO: {leader_id}".format(cluster_id=self.cluster_id,leader_id=self.leader_id))
             self.datanodeListInSystem.set_is_leader(candidates[0].uid, True)
             
 

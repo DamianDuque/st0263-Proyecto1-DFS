@@ -38,14 +38,14 @@ class Reports:
         except Exception as e:
             logger.error("internal error: {}".format(e))
       def initial_report(self,directory):
-            print(self.__namenode_ip)
+            #print(self.__namenode_ip)
             namenode_stub = self._create_name_node_client(self.__namenode_ip, self.__namenode_port)
             logger.info("Initial Report displaying")
             current_dir = []
             datanode_id = str(self.__my_id)
             for directorio, subdirectorios, archivos in os.walk(directory):
                   file= os.path.basename(directorio)
-                  print(directorio,directory)
+                  #print(directorio,directory)
                   if str(directorio) == directory:
                         continue
                   for archivo in archivos:

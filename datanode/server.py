@@ -38,13 +38,13 @@ class FileServicer(FileServicer):
   def read(self, request, context):
     file_name = request.filename
     file_partition_name= request.chunkname
-    print(file_partition_name)
+    #print(file_partition_name)
     #main directory/filename/partition_number.extension
     dir_path=self.__files_directory + "/"+file_name+"/"+file_partition_name
     try:
       #Archivo no existe o no es un archivo regular, levanta un err.
       if not os.path.isfile(dir_path):
-        print(dir_path)
+        #print(dir_path)
         raise FileExistsError
       #Archivo vacio, Error End of file.
       if os.path.getsize(dir_path) == 0:

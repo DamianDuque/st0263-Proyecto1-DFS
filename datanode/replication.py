@@ -65,9 +65,9 @@ class Replication:
                         #Actualizar a esta version--
                         fid="{}".format(response.follower_id)
                         flocation="{}".format(response.follower_location)
-                        print("FOLLOWER INFO:")
-                        print("FOLLOWER ID", fid)
-                        print("FOLLOWER LOCATION", flocation)
+                        #print("FOLLOWER INFO:")
+                        #print("FOLLOWER ID", fid)
+                        #print("FOLLOWER LOCATION", flocation)
                         self.__uploadToNameNode(socket=flocation,storedPath=file_path,filename=file_name,chunk_name=chunk_name)
 
             except grpc.RpcError as e:

@@ -36,7 +36,6 @@ class Client:
      try:
       response_stream = namenodeStub.open(req)
       for response in response_stream:
-        print(response)
         localization=response.localization
         chunkname=response.chunkname
         

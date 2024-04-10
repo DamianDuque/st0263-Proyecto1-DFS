@@ -41,14 +41,12 @@ class FileServicer(servicer.NameNodeServiceServicer):
   def checkAliveness(self):
     while True:
       for datanode in self.__dataNodesList.datanodes.values():
-        print(f'Objeto Datanode -- {datanode}')
+        logger.info("Objeto Datanode -- {datan}".format(datan = datanode))
         is_dead_leader = datanode.set_alive()
-        print(is_dead_leader)
         if is_dead_leader:
-          print("IS DEAD LEADERRRR")
+          logger.info("Sadly, the leader passed away")
           for cluster in self.__cluster_list:
             if datanode.uid in cluster.datanode_ids_List:
-              print("ENTRAAA A CHOOSE")
               datanode.is_leader = False
               cluster.choose_new_leader()
       time.sleep(5)
@@ -120,13 +118,13 @@ class FileServicer(servicer.NameNodeServiceServicer):
         filename= request.filename
         
         chunk_list= self.__indexTable.get_all_chunk_data_from_name(filename=filename)
-        print(chunk_list)
+        #print(chunk_list)
         if len(chunk_list) == 0:
           yield DatanodeList()
         else:
           for chunk in chunk_list:
             localizations_available= [datanode.location for datanode in self.__dataNodesList.get_alive_datanodes() if  datanode.uid in chunk.locations]
-            print(localizations_available)
+            #print(localizations_available)
             random_index = random.randint(0, len(localizations_available)-1)
             location=localizations_available[random_index]
             name= chunk.name
@@ -180,7 +178,7 @@ class FileServicer(servicer.NameNodeServiceServicer):
     file_id = request.filename
     chunk_name = request.partname
     datanode_id = request.location
-    print(datanode_id)
+    #print(datanode_id)
     # Update the index table with the chunk information
     #add entry to index table
     if file_id!="" and chunk_name!="":
@@ -194,7 +192,7 @@ class FileServicer(servicer.NameNodeServiceServicer):
   def listin(self, request, context):
     logger.info("Received req from client for updated index list")
     #print("Index",self.__indexTable.__dict__)
-    print("Index table",self.__indexTable._IndexTable__indexTable)
+    #print("Index table",self.__indexTable._IndexTable__indexTable)
     if len(self.__indexTable._IndexTable__indexTable.keys())<1:
       yield DirectoryContent()
     #print(self.__indexTable._IndexTable__indexTable.keys())
