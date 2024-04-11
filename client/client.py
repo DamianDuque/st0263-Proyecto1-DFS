@@ -26,7 +26,7 @@ class Client:
     self.__port = port
     self.__files_directory=root_dir
     self.__in_dir=in_dir
-    self._PIECE_SIZE_IN_BYTES = 1024 * 1024 * 128# 128MB
+    self._PIECE_SIZE_IN_BYTES = 1024 * 1024 # 128MB
 
   def open(self,file_name):
      namenodeStub= self._create_name_node_client(self.__ip_address,self.__port)
@@ -41,7 +41,6 @@ class Client:
         thread = Thread(target=self.read, args=(localization, file_name,chunkname,))
         thread.start()
         threads.append(thread)
-        self.read(socket=localization,file_name=file_name,chunk_name=chunkname)
       for thread in threads:
         thread.join()
       unificator.unificator(split_dir=self.__files_directory, filename = file_name)
